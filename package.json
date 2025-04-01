@@ -1,13 +1,14 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "discord.js": "^14.0.0",
+    "dotenv": "^16.4.7",
+    "tsup": "^8.4.0"
+  },
   "scripts": {
     "dev": "tsup; node dist/app.js"
   },
   "devDependencies": {
     "@types/node": "^22.13.16",
-    "typescript": "^5.8.2",
-    "discord.js": "^14.0.0",
-    "dotenv": "^16.4.7",
-    "tsup": "^8.4.0"
+    "typescript": "^5.8.2"
   }
 }
