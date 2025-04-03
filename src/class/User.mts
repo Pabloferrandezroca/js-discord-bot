@@ -1,4 +1,6 @@
 import { Message } from "discord.js"
+import { enviarMensaje, crearChat } from '../lib/gemini.mts';
+import { ChatSession } from "@google/generative-ai"
 
 export enum Status {
     idle,
@@ -9,7 +11,7 @@ class User {
     protected static users: {[key:string]: User} = {}
 
     protected id: string
-    protected chat: object|null
+    protected chat: ChatSession|null
     protected status = Status.idle
     protected lastBotResponseId: string = ""
 
@@ -25,7 +27,7 @@ class User {
         return User.users[userID] ? User.users[userID] : new User(userID)
     }
 
-    public async sentCommand(command: string, args: string[], message: Message): void
+    public async sentCommand(command: string, args: string[], message: Message): Promise<void>
     {
         switch (command) {
             case 'test':
@@ -40,21 +42,22 @@ class User {
             case 'ayuda':
                 if(this.status !== Status.inChat){
                     let replyMessage = await message.reply(`Hola ${message.author.displayName}, ¿en que puedo ayudarte hoy?||responde a este mensaje para comunicarte conmigo||`)
-                    //this.chat = ai.getNewchat()
+                    this.chat = crearChat(message.author.displayName)
                     this.lastBotResponseId = replyMessage.id
+                    this.status = Status.inChat
                 }else{
                     message.reply('Ya estás en un chat, usa `!terminar chat` para cerrarlo.')
                 }
         }
     }
 
-    public sendMessage(message: Message): void
+    public async sendMessage(message: Message): Promise<void>
     {
-        
-        // ia.enviarMensajeAlChat
+        let respuestaDeIA = await enviarMensaje(this.chat, message.content)
 
-        // message.reply(respuestaDeIA)
         
+        let replyMessage = await message.reply(respuestaDeIA)
+        this.lastBotResponseId = replyMessage.id
         //let replied = message.reference?.messageId
 
         //message.reply(`Hola manin`)
