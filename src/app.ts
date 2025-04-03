@@ -19,7 +19,19 @@ client.on(Events.MessageCreate, async message => {
   // solo recibe el mensaje si el canal es llamado *programaci*
   if(message.channel instanceof TextChannel && message.channel.name.toLocaleLowerCase().includes("programaci")){
     let user = User.getUser(message.author.id)
-    user.sentMessage(message)
+
+    if(message.content.startsWith("!")){
+      // es un commando
+      let content = message.content.substring(1)
+      let args = content.split(' ')
+      let command = args.shift()
+
+      user.sentCommand(command, args, message)
+    } else {
+      if(user.isInChat && user.isLastChatMessage(message)){
+        user.sendMessage(message)
+      }
+    }
   }
 
 })
