@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { Client, GatewayIntentBits, Events, TextChannel, Message } from 'discord.js'
 import { User } from './class/User.mts'
+import { main } from './gemini';
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
@@ -11,9 +12,15 @@ client.on(Events.ClientReady, readyClient => {
 })
 
 client.on(Events.MessageCreate, async message => {
-  //ignorar mensajes del propio bot
+//ignorar mensajes del propio bot
   if(client.user?.id === message.author.id){
     return
+  }
+  if (message.content.startsWith('!')){
+    let pregunta = message.content.substring(1);
+    let respuesta = main(pregunta);
+    message.channel.send(await respuesta);
+
   }
 
   // solo recibe el mensaje si el canal es llamado *programaci*
