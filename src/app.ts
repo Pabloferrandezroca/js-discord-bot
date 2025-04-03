@@ -13,15 +13,15 @@ client.on(Events.ClientReady, readyClient => {
 })
 
 client.on(Events.MessageCreate, async message => {
-/* <<<<<<< HEAD
+
+  if(client.user?.id === message.author.id){
+    return
+  }
   if (message.content.startsWith('!')){
     let pregunta = message.content.substring(1);
     let respuesta = main(pregunta);
     message.channel.send(await respuesta);
-=======*/
-  //ignorar mensajes del propio bot
-  if(client.user?.id === message.author.id){
-    return
+
   }
 
   // solo recibe el mensaje si el canal es llamado *programaci*
