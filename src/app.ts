@@ -1,5 +1,4 @@
 import 'dotenv/config'
-
 import { Client, GatewayIntentBits, Events, TextChannel, Message } from 'discord.js'
 import { User } from './class/User.mts'
 import { main } from './gemini';
@@ -13,7 +12,7 @@ client.on(Events.ClientReady, readyClient => {
 })
 
 client.on(Events.MessageCreate, async message => {
-
+//ignorar mensajes del propio bot
   if(client.user?.id === message.author.id){
     return
   }
