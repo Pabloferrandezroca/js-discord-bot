@@ -9,7 +9,7 @@ class User {
     protected static users: {[key:string]: User} = {}
 
     protected id: string
-    //protected chat: object|null
+    protected chat: object|null
     protected status = Status.idle
     protected lastBotResponseId: string = ""
 
@@ -17,7 +17,6 @@ class User {
     {
         User.users[userID] = this
         this.id = userID
-        //this.chat = {}
         return this
     }
 
@@ -26,7 +25,7 @@ class User {
         return User.users[userID] ? User.users[userID] : new User(userID)
     }
 
-    public sentCommand(command: string, args: string[], message: Message): void
+    public async sentCommand(command: string, args: string[], message: Message): void
     {
         switch (command) {
             case 'test':
@@ -40,8 +39,9 @@ class User {
                 break;
             case 'ayuda':
                 if(this.status !== Status.inChat){
-                    message.reply(`Hola ${message.author.displayName}, ¿en que puedo ayudarte hoy?||responde a este mensaje para comunicarte conmigo||`)
-                    
+                    let replyMessage = await message.reply(`Hola ${message.author.displayName}, ¿en que puedo ayudarte hoy?||responde a este mensaje para comunicarte conmigo||`)
+                    //this.chat = ai.getNewchat()
+                    this.lastBotResponseId = replyMessage.id
                 }else{
                     message.reply('Ya estás en un chat, usa `!terminar chat` para cerrarlo.')
                 }
@@ -50,9 +50,13 @@ class User {
 
     public sendMessage(message: Message): void
     {
+        
+        // ia.enviarMensajeAlChat
+
+        // message.reply(respuestaDeIA)
+        
         //let replied = message.reference?.messageId
 
-        //message.reply(`Hola manin ${message.author.displayName}||<@${message.author.id}>||!`)
         //message.reply(`Hola manin`)
         // if (enviadoPorBotID === replied){
         //     message.reply("A esta te respondo yo")
