@@ -1,6 +1,7 @@
-import { Message } from "discord.js"
+import { EmbedBuilder, Message } from "discord.js"
 import { enviarMensaje, crearChat } from '../lib/gemini.mts';
 import { ChatSession } from "@google/generative-ai"
+import { Configuration } from "./Configuration.mts";
 
 export enum Status {
     idle,
@@ -38,7 +39,7 @@ class User {
                 }else{
                     message.react(String.fromCodePoint(0x0030 + args.length)+"\u20E3")
                 }
-                break;
+                return
             case 'ayuda':
                 if(this.status !== Status.inChat){
                     let replyMessage = await message.reply(`Hola ${message.author.displayName}, ¿en que puedo ayudarte hoy?||responde a este mensaje para comunicarte conmigo||`)
@@ -47,6 +48,33 @@ class User {
                     this.status = Status.inChat
                 }else{
                     message.reply('Ya estás en un chat, usa `!terminar chat` para cerrarlo.')
+                }
+                return
+            case 'show':
+                switch (args[0]) {
+                    case 'configuration':
+                        let outMess = ''
+                        Configuration.getProperties().forEach((property) => {
+                            outMess += `- \`${property} = ${Configuration[property]}\`\n`
+                        });
+                        let embed = new EmbedBuilder()
+                            .setColor(0x0099FF)
+                            .setTitle('Propiedades')
+                            .setDescription(outMess)
+                            // .setThumbnail('https://i.imgur.com/AfFp7pu.png')
+                            // .addFields(
+                            //     { name: 'Regular field title', value: 'Some value here' },
+                            //     { name: '\u200B', value: '\u200B' },
+                            //     { name: 'Inline field title', value: 'Some value here', inline: true },
+                            //     { name: 'Inline field title', value: 'Some value here', inline: true },
+                            // )
+                            // .addFields({ name: 'Inline field title', value: 'Some value here', inline: true })
+                            // .setImage('https://i.imgur.com/AfFp7pu.png')
+                            .setTimestamp()
+                            // .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+                        
+                        message.reply({ embeds: [embed] })
+                        return
                 }
         }
     }
