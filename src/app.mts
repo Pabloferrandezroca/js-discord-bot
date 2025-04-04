@@ -14,9 +14,11 @@ const client = new Client({
 client.on(Events.ClientReady, async readyClient  => {
   console.log(`Sesión iniciada como ${readyClient.user.tag}`)
 
+  console.log("Eliminando interacciones antiguas")
   await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })
     .then(() => console.log('Slash commands cleared.'))
     .catch(console.error);
+  console.log("Interacciones antiguas eliminadas")
 
   let slashCommands = []
   for (let propiedad in commands) {
@@ -24,16 +26,15 @@ client.on(Events.ClientReady, async readyClient  => {
   }
 
   try {
-    console.log(`Started refreshing ${slashCommands.length} application (/) commands.`);
+    console.log(`Informando sobre la existencia de ${slashCommands.length} comandos de aplicación(/).`);
 
-    // The put method is used to fully refresh all commands in the guild with the current set
     const data = await rest.put(
       Routes.applicationCommands(process.env.DISCORD_APP_ID),
       { body: slashCommands },
     ) as [any]
 
     //console.log(data)
-    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+    console.log(`Recargados correctamente ${data.length} comandos de aplicación(/).`);
   } catch (error) {
     console.error(error);
   }
@@ -90,6 +91,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
   if(command){
     command[1](interaction)
+  }else{
+    interaction.reply(`No hay ningún comando nombrado \`${interaction.commandName}\`!`);
   }
 })
 
