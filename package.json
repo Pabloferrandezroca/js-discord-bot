@@ -7,7 +7,7 @@
     "tsup": "^8.4.0"
   },
   "scripts": {
-    "dev": "tsup; node dist/app.js"
+    "dev": "tsup; node dist/app.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.13.16",
