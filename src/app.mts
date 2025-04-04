@@ -1,16 +1,44 @@
-import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder } from 'discord.js'
+import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder, REST, Routes, MessageFlags } from 'discord.js'
 import { User } from './class/User.mts'
 import { commands } from './commands/commands.mts'
 
 import 'dotenv/config'
 import './class/Configuration.mts'
 
+const rest = new REST().setToken(process.env.DISCORD_TOKEN)
+
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers]
 })
 
-client.on(Events.ClientReady, readyClient => {
+client.on(Events.ClientReady, async readyClient  => {
   console.log(`Sesión iniciada como ${readyClient.user.tag}`)
+
+  await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })
+    .then(() => console.log('Slash commands cleared.'))
+    .catch(console.error);
+
+  let slashCommands = []
+  for (let propiedad in commands) {
+    slashCommands.push(commands[propiedad][0].toJSON())
+  }
+
+  try {
+    console.log(`Started refreshing ${slashCommands.length} application (/) commands.`);
+
+    // The put method is used to fully refresh all commands in the guild with the current set
+    const data = await rest.put(
+      Routes.applicationCommands(process.env.DISCORD_APP_ID),
+      { body: slashCommands },
+    ) as [any]
+
+    //console.log(data)
+    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+  } catch (error) {
+    console.error(error);
+  }
+
+  //console.log(await rest.get(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] }))
 })
 
 client.on(Events.MessageCreate, async message => {
@@ -53,7 +81,10 @@ client.on('guildMemberAdd', async member => {
 })
 
 client.on(Events.InteractionCreate, async interaction => {
+  console.log(interaction)
   if (!interaction.isChatInputCommand()) return
+
+  interaction.reply( { content: 'Todo ok!', flags: MessageFlags.Ephemeral })
 
   let command = commands[interaction.commandName]
 
