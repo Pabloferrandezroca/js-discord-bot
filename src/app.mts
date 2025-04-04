@@ -68,10 +68,4 @@ client.on(Events.InteractionCreate, async interaction => {
 
 
 client.login(process.env.DISCORD_TOKEN)
-let commands = new Collection<string, (interaction: Interaction<CacheType>) => void>
-commands.set("test", async interaction => {
-  if (interaction.isChatInputCommand()) {
-    await interaction.reply({ content: "yes", ephemeral: true });
-  }
-});
 console.log('Iniciando sesión...')
