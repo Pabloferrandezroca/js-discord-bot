@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder } from 'discord.js'
+import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder, SlashCommandBuilder, CacheType, Collection, Interaction } from 'discord.js'
 import { User } from './class/User.mts'
 
 import 'dotenv/config'
@@ -10,6 +10,9 @@ const client = new Client({
 
 client.on(Events.ClientReady, readyClient => {
   console.log(`Sesión iniciada como ${readyClient.user.tag}`)
+  new SlashCommandBuilder()
+       .setName('test')
+       .setDescription('Una prueba para ver si funciona')
 })
 
 client.on(Events.MessageCreate, async message => {
@@ -54,4 +57,10 @@ client.on('guildMemberAdd', async member => {
 
 
 client.login(process.env.DISCORD_TOKEN)
+let commands = new Collection<string, (interaction: Interaction<CacheType>) => void>
+commands.set("test", async interaction => {
+  if (interaction.isChatInputCommand()) {
+    await interaction.reply({ content: "yes", ephemeral: true });
+  }
+});
 console.log('Iniciando sesión...')
