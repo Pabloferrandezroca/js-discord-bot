@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
+        "sourceMap": true,
         "module": "ES2022",
         "target": "ES2022",
-        "moduleResolution": "bundler",
+        "moduleResolution": "node",
         "outDir": "./dist",
         "rootDir": "./src",
         "strict": false,
@@ -13,7 +14,9 @@
         "noUncheckedIndexedAccess": true,
         "allowSyntheticDefaultImports": true,
         "noEmit": true,
-        "allowImportingTsExtensions": true
+        "allowImportingTsExtensions": true,
+        "baseUrl": "app/javascript",
+        "verbatimModuleSyntax": true
     },
     "include": ["src"],
     "exclude": ["dist", "node_modules"]
