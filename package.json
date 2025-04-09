@@ -1,16 +1,21 @@
 {
+  "type": "module",
   "dependencies": {
     "@google/genai": "^0.7.0",
     "@google/generative-ai": "^0.24.0",
     "discord.js": "^14.0.0",
     "dotenv": "^16.4.7",
-    "tsup": "^8.4.0"
+    "esbuild": "^0.25.2",
+    "tsc": "^2.0.4",
+    "typescript": "^5.8.3"
   },
   "scripts": {
-    "dev": "tsup; node dist/app.mjs"
+    "check": "tsc --noEmit",
+    "build": "tsc --noEmit && node esbuild.config.mjs",
+    "dev": "tsc --noEmit && node esbuild.config.mjs && node dist/app.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.13.16",
-    "typescript": "^5.8.2"
+    "esbuild-plugin-replace": "^1.4.0"
   }
 }

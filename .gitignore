@@ -3,3 +3,4 @@ package-lock.json
 dist
 node_modules
 src/data
+yarn.lock
