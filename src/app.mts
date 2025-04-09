@@ -1,10 +1,10 @@
-
-import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder, REST, Routes, MessageFlags } from 'discord.js'
+import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder, REST, Routes, MessageFlags, Embed, Message } from 'discord.js'
 import { User } from './class/User.mts'
 import { commands } from './commands/commands.mts'
 
 import 'dotenv/config'
 import './class/Configuration.mts'
+import { helpCommand, help } from './commands/help.mts'
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN)
 
@@ -21,7 +21,9 @@ client.on(Events.ClientReady, async readyClient  => {
 
   let slashCommands = []
   for (let propiedad in commands) {
-    slashCommands.push(commands[propiedad][0].toJSON())
+    if (commands[propiedad][0]?.toJSON) {
+      slashCommands.push(commands[propiedad][0].toJSON());
+    }
   }
 
   try {
@@ -68,24 +70,39 @@ client.on(Events.MessageCreate, async message => {
 
 })
 
+
+client.on('interactionCreate', async interaction => {
+  console.log("hola")
+    if (interaction.isModalSubmit() && interaction.customId === 'helpModal') {
+        const userInput = interaction.fields.getTextInputValue('helpInput');
+        console.log(`El usuario escribió: ${userInput}`);
+        await interaction.reply({
+            content: `Recibido: ${userInput}`,
+            ephemeral: false,
+        });
+    }
+});
+
+let welcome = new EmbedBuilder()
+  .setColor(0x007BFF)
+  .setTitle('Bienvenido a facturascripts!')
+  .setDescription('Si quieres reportar un problema con FacturaScripts o alguno de sus plugins, es mejor que uses la sección de contacto de la web -> https://facturascripts.com/contacto')
+  .addFields(
+    { name: 'Canal para dudas de programación', value: 'https://discordapp.com/channels/1357254454230909082/1357634658300596316' },
+    { name: 'Canal para dudas sobre tracucciones', value: 'https://discordapp.com/channels/1357254454230909082/1357634738516394024' },
+    { name: 'Canal para el resto de dudas', value: 'https://discordapp.com/channels/1357254454230909082/1357254454839218178 o https://discordapp.com/channels/1357254454230909082/1357634764500111414' }
+  )
+
 client.on('guildMemberAdd', async member => {
-  const embed = new EmbedBuilder()
-    .setColor(0x007BFF) // Puedes usar un color en hexadecimal
+  welcome
     .setTitle('Hola ' + member.user.displayName + ", Bienvendido a facturascripts!")
-    .setDescription('Si quieres reportar un problema con FacturaScripts o alguno de sus plugins, es mejor que uses la sección de contacto de la web -> https://facturascripts.com/contacto')
-    .addFields(
-      { name: 'Canal para dudas de programación', value: 'https://discordapp.com/channels/1357254454230909082/1357634658300596316' },
-      { name: 'Canal para dudas sobre tracucciones', value: 'https://discordapp.com/channels/1357254454230909082/1357634738516394024' },
-      { name: 'Canal para el resto de dudas', value: 'https://discordapp.com/channels/1357254454230909082/1357254454839218178 o https://discordapp.com/channels/1357254454230909082/1357634764500111414' }
-    )
-  member.send({ embeds: [embed] });
+  member.send({ embeds: [welcome] });
 })
+export { welcome }
 
 client.on(Events.InteractionCreate, async interaction => {
-  console.log(interaction)
-  if (!interaction.isChatInputCommand()) return
 
-  interaction.reply( { content: 'Todo ok!', flags: MessageFlags.Ephemeral })
+  if (!interaction.isChatInputCommand()) return
 
   let command = commands[interaction.commandName]
 
