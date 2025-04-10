@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from 'url';
 import { fileExists, readJsonFile, writeJsonFile } from "../lib/filesHelper.mts"
+import { TextChannel } from "discord.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,7 +14,12 @@ if(!fileExists(CONFIG_PATH)){
 
 class Configuration {
     public static prefix = '!'
-    public static welcomeChannelID = ''
+    public static welcomeChannelID: TextChannel
+
+    public static propertiesMap = {
+        prefix: String,
+        welcomeChannelID: TextChannel
+    }
 
     static loadConfig(data: {[key: string]: string|number})
     {
@@ -24,13 +30,13 @@ class Configuration {
 
     static getProperties() : string[]
     {
-        return Object.getOwnPropertyNames(this)
-            .filter(prop => {
-                return typeof this[prop] !== "function" 
-                && prop !== "length" 
-                && prop !== "prototype" 
-                && prop !== "name"
-            });
+        return Object.keys(this.propertiesMap)
+    }
+
+    static type(property: string): String | TextChannel | Number
+    {
+        if(!this.propertiesMap[property]){throw new Error('No existe la propiedad buscada, revisa el código.')}
+        return this.propertiesMap[property]
     }
 
     static async save(): Promise<void>
