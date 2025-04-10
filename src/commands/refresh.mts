@@ -6,7 +6,7 @@ const refreshCommand = new SlashCommandBuilder()
     .setDescription('Comando para refrescar los comandos del bot')
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 
-async function refresh(interaction) {
+async function refreshAction(interaction) {
     const rest = new REST().setToken(process.env.DISCORD_TOKEN)
     console.log("Eliminando interacciones antiguas")
     await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })
@@ -37,4 +37,4 @@ async function refresh(interaction) {
         interaction.reply({ content: `Error al recargar los comandos: ${error}`, flags: MessageFlags.Ephemeral })
     }
 }
-export { refreshCommand, refresh }
+export { refreshCommand, refreshAction }

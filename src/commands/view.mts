@@ -31,7 +31,7 @@ const viewCommand = new SlashCommandBuilder()
             .setDescription('Ver la lista de comandos')
     )
 
-async function execute(interaction: ChatInputCommandInteraction) {
+async function viewAction(interaction: ChatInputCommandInteraction) {
     const category = interaction.options.getSubcommand();
     switch (category) {
         case 'config':
@@ -84,17 +84,18 @@ async function execute(interaction: ChatInputCommandInteraction) {
                 .setTitle('Lista de comandos')
                 .setDescription('Lista de comandos disponibles')
                 .addFields(
-                    ...Object.entries(commands).map(([name, [command, _action]]) => ({
+                    ...Object.entries(commands).map(([name, { command, action }]) => ({
                         name: `/${name}`,
                         value: command.description || 'Sin descripción',
                         inline: false
                     }))
                 )
                 interaction.reply({ embeds: [list], flags: MessageFlags.Ephemeral });
+            break;
         default:
             interaction.reply({ content: 'Comando no valido', flags: MessageFlags.Ephemeral });
             break;
     }
 }
 
-export { viewCommand, execute }
+export { viewCommand, viewAction }

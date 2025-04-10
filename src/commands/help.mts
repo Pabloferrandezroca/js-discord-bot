@@ -7,7 +7,7 @@ const helpCommand = new SlashCommandBuilder()
 
 
 // solo recibe el mensaje si el canal es llamado *programaci*
-async function help(interaction: ChatInputCommandInteraction) {
+async function helpAction(interaction: ChatInputCommandInteraction) {
     if (interaction.channel?.name.toLocaleLowerCase().includes("programaci")) {
         const modal = new ModalBuilder()
             .setCustomId('helpModal')
@@ -40,4 +40,4 @@ async function help(interaction: ChatInputCommandInteraction) {
     })
 }
 
-export { helpCommand, help }
+export { helpCommand, helpAction }
