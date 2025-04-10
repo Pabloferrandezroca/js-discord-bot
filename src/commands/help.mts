@@ -1,8 +1,10 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, MessageFlags, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 import { User } from "../class/User.mts";
+
 const helpCommand = new SlashCommandBuilder()
     .setName('help')
     .setDescription('Comando para pedirle ayuda al chatbot')
+
 
 // solo recibe el mensaje si el canal es llamado *programaci*
 async function help(interaction: ChatInputCommandInteraction) {
@@ -33,9 +35,9 @@ async function help(interaction: ChatInputCommandInteraction) {
         let respuesta = await user.sendMessage(userInput, interaction.user.username);
         await interaction.reply({
           content: `${respuesta}`,
-        });
+        })
       }
-    });
+    })
 }
 
 export { helpCommand, help }

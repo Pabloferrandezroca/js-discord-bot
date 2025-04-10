@@ -1,17 +1,28 @@
+import { ChatInputCommandInteraction, type SlashCommandOptionsOnlyBuilder, type SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
 import { testCommand, testAction } from './test.mts'
+import { refreshCommandsCommand, refreshCommandsAction } from './refreshCommands.mts'
+import { setCommand, setAction } from './set.mts'
 import { viewCommand, execute } from './view.mts'
 import { helpCommand, help } from './help.mts';
 import { refreshCommand, refresh } from './refresh.mts';
 
-type commandsType = {
-    [key: string]: [any, any];
-};
+type CommandCoupleType = {
+    [x: string]: {
+        command: SlashCommandOptionsOnlyBuilder;
+        action: (interaction: ChatInputCommandInteraction) => void;
+    } | {
+        command: SlashCommandSubcommandsOnlyBuilder;
+        action: (interaction: ChatInputCommandInteraction) => Promise<void>;
+    };
+}
 
-let commands: commandsType = {
-    [testCommand.name]: [ testCommand, testAction ],
-    [viewCommand.name]: [ viewCommand, execute ],
-    [helpCommand.name]: [ helpCommand, help ],
-    [refreshCommand.name]: [ refreshCommand, refresh ],
+let commands: CommandCoupleType = {
+    [testCommand.name]: { command: testCommand, action: testAction},
+    [refreshCommandsCommand.name]: { command: refreshCommandsCommand, action: refreshCommandsAction},
+    [setCommand.name]: { command: setCommand, action: setAction},
+    [viewCommand.name]: { command: viewCommand, action: execute},
+    [helpCommand.name]: { command: helpCommand, action: help},
+    [refreshCommand.name]: { command: refreshCommand, action: refresh},
 }
 
 export { commands }

@@ -2,6 +2,9 @@ import { ChatInputCommandInteraction, EmbedBuilder, InteractionContextType, Mess
 import { Configuration } from "../class/Configuration.mts";
 import { welcome } from "../app.mts";
 import { commands } from "./commands.mts";
+
+const conf = Configuration.getConfiguration()
+
 const viewCommand = new SlashCommandBuilder()
     .setName('view')
     .setDescription('Comando para ver la configuracion, miembros del canal, etc...')
@@ -27,13 +30,14 @@ const viewCommand = new SlashCommandBuilder()
             .setName('list')
             .setDescription('Ver la lista de comandos')
     )
+
 async function execute(interaction: ChatInputCommandInteraction) {
     const category = interaction.options.getSubcommand();
     switch (category) {
         case 'config':
             let outMess = '';
-            Configuration.getProperties().forEach((property) => {
-                outMess += `- \`${property} = ${Configuration[property]}\`\n`
+            conf.getProperties().forEach((property) => {
+                outMess += `- \`${property} = ${conf[property]}\`\n`
             });
             let embed = new EmbedBuilder()
                 .setColor(0x0099FF)

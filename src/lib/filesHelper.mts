@@ -19,7 +19,6 @@ export async function createFolderIfNotExists(filePath: string): Promise<void>
     try {
       // Crear la carpeta (y las subcarpetas necesarias) si no existe
       await fs.mkdir(folderPath, { recursive: true });
-      console.log('Carpeta creada o ya existe.');
     } catch (error) {
       console.error('Error al crear la carpeta:', error);
     }
