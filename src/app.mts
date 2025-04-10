@@ -4,7 +4,7 @@ import { commands } from './commands/commands.mts'
 import 'dotenv/config'
 import './class/Configuration.mts'
 
-const rest = new REST().setToken(process.env.DISCORD_TOKEN)
+//const rest = new REST().setToken(process.env.DISCORD_TOKEN)
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers]
@@ -13,7 +13,7 @@ const client = new Client({
 client.on(Events.ClientReady, async readyClient => {
   console.log(`Sesión iniciada como ${readyClient.user.tag}`)
 
-  console.log("Eliminando interacciones antiguas")
+/*  console.log("Eliminando interacciones antiguas")
   await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })
     .then(() => console.log('Slash commands cleared.'))
     .catch(console.error);
@@ -39,7 +39,7 @@ client.on(Events.ClientReady, async readyClient => {
   } catch (error) {
     console.error(error);
   }
-
+*/
   //console.log(await rest.get(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] }))
 })
 
