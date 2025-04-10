@@ -1,4 +1,3 @@
-
 import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder, REST, Routes, MessageFlags, Embed, Message } from 'discord.js'
 import { Configuration } from './class/Configuration.mts'
 
@@ -31,7 +30,7 @@ client.on(Events.ClientReady, async readyClient  => {
     slashCommands.push(commands[propiedad]["command"])
   }
 
-  try {
+  /*try {
     console.log(`==> Informando sobre la existencia de ${slashCommands.length} comandos de aplicación.`.blue)
 
     const data = await rest.put(
@@ -43,7 +42,7 @@ client.on(Events.ClientReady, async readyClient  => {
     console.log(`\t-> Recargados correctamente ${data.length} comandos de aplicación.`.green);
   } catch (error) {
     console.error(error);
-  }
+  }*/
 
   console.log(`\n[--------------------------- logs -----------------------------]\n`.cyan);
   //console.log(await rest.get(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] }))
