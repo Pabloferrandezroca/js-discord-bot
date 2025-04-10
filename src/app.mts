@@ -1,10 +1,8 @@
 import { Client, GatewayIntentBits, Events, TextChannel, EmbedBuilder, REST, Routes, MessageFlags, Embed, Message } from 'discord.js'
 import { User } from './class/User.mts'
 import { commands } from './commands/commands.mts'
-
 import 'dotenv/config'
 import './class/Configuration.mts'
-import { helpCommand, help } from './commands/help.mts'
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN)
 
@@ -12,7 +10,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers]
 })
 
-client.on(Events.ClientReady, async readyClient  => {
+client.on(Events.ClientReady, async readyClient => {
   console.log(`Sesión iniciada como ${readyClient.user.tag}`)
 
   console.log("Eliminando interacciones antiguas")
@@ -45,44 +43,10 @@ client.on(Events.ClientReady, async readyClient  => {
   //console.log(await rest.get(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] }))
 })
 
-client.on(Events.MessageCreate, async message => {
-  //ignorar mensajes del propio bot
-  if (client.user?.id === message.author.id) {
-    return
-  }
-
-  // solo recibe el mensaje si el canal es llamado *programaci*
-  if (message.channel instanceof TextChannel && message.channel.name.toLocaleLowerCase().includes("programaci")) {
-    let user = User.getUser(message.author.id)
-
-    if (message.content.startsWith("!")) {
-      // es un commando
-      let content = message.content.substring(1)
-      let args = content.split(' ')
-      let command = args.shift()
-
-      user.sentCommand(command, args, message)
-    } else {
-      if (user.isInChat && user.isLastChatMessage(message)) {
-        user.sendMessage(message)
-      }
-    }
-  }
-
-})
 
 
-client.on('interactionCreate', async interaction => {
-  console.log("hola")
-    if (interaction.isModalSubmit() && interaction.customId === 'helpModal') {
-        const userInput = interaction.fields.getTextInputValue('helpInput');
-        console.log(`El usuario escribió: ${userInput}`);
-        await interaction.reply({
-            content: `Recibido: ${userInput}`,
-            ephemeral: false,
-        });
-    }
-});
+
+
 
 let welcome = new EmbedBuilder()
   .setColor(0x007BFF)
@@ -107,9 +71,9 @@ client.on(Events.InteractionCreate, async interaction => {
 
   let command = commands[interaction.commandName]
 
-  if(command){
+  if (command) {
     command[1](interaction)
-  }else{
+  } else {
     interaction.reply(`No hay ningún comando nombrado \`${interaction.commandName}\`!`);
   }
 })

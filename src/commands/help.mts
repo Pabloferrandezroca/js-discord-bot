@@ -1,4 +1,5 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, MessageFlags, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { User } from "../class/User.mts";
 const helpCommand = new SlashCommandBuilder()
     .setName('help')
     .setDescription('Comando para pedirle ayuda al chatbot')
@@ -25,6 +26,16 @@ async function help(interaction: ChatInputCommandInteraction) {
     else {
         interaction.reply({ content: "El comando solo funciona en el canal programacion", flags: MessageFlags.Ephemeral })
     }
+    interaction.client.on('interactionCreate', async interaction => {
+      if (interaction.isModalSubmit() && interaction.customId === 'helpModal') {
+        let user = User.getUser(interaction.user.id);
+        const userInput = interaction.fields.getTextInputValue('helpInput');
+        let respuesta = await user.sendMessage(userInput, interaction.user.username);
+        await interaction.reply({
+          content: `${respuesta}`,
+        });
+      }
+    });
 }
 
 export { helpCommand, help }

@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder, InteractionContextType, MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Configuration } from "../class/Configuration.mts";
 import { welcome } from "../app.mts";
+import { commands } from "./commands.mts";
 const viewCommand = new SlashCommandBuilder()
     .setName('view')
     .setDescription('Comando para ver la configuracion, miembros del canal, etc...')
@@ -21,7 +22,11 @@ const viewCommand = new SlashCommandBuilder()
             .setName('welcome')
             .setDescription('Prevuisualizar el mensaje de bienvenida')
     )
-
+    .addSubcommand(subcommand =>
+        subcommand
+            .setName('list')
+            .setDescription('Ver la lista de comandos')
+    )
 async function execute(interaction: ChatInputCommandInteraction) {
     const category = interaction.options.getSubcommand();
     switch (category) {
@@ -47,12 +52,11 @@ async function execute(interaction: ChatInputCommandInteraction) {
                     if (member.user.bot === false) {
                         channelUsers.push(member.user.username);
                     }
-                    else{
+                    else {
                         channelBots.push(member.user.username);
                     }
                 });
                 let channelMembers = channelUsers.length + channelBots.length
-                console.log(channelMembers.toString)
                 let embed = new EmbedBuilder()
                     .setColor(0x0099FF)
                     .setTitle('Miembros del servidor')
@@ -70,6 +74,19 @@ async function execute(interaction: ChatInputCommandInteraction) {
             welcome.setTitle('Hola ' + interaction.user.displayName + ", Bienvendido a facturascripts!")
             interaction.reply({ embeds: [welcome], flags: MessageFlags.Ephemeral });
             break;
+        case 'list':
+            let list = new EmbedBuilder()
+                .setColor(0x0099FF)
+                .setTitle('Lista de comandos')
+                .setDescription('Lista de comandos disponibles')
+                .addFields(
+                    ...Object.entries(commands).map(([name, [command, _action]]) => ({
+                        name: `/${name}`,
+                        value: command.description || 'Sin descripción',
+                        inline: false
+                    }))
+                )
+                interaction.reply({ embeds: [list], flags: MessageFlags.Ephemeral });
         default:
             interaction.reply({ content: 'Comando no valido', flags: MessageFlags.Ephemeral });
             break;

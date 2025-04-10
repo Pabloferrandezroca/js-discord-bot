@@ -79,13 +79,19 @@ class User {
         }
     }
 
-    public async sendMessage(message: Message): Promise<void>
+    public async sendMessage(message: string, username: string): Promise<string>
     {
-        let respuestaDeIA = await enviarMensaje(this.chat, message.content)
+        let respuestaDeIA = "";
+        if (this.status === Status.idle) {
+            this.chat = crearChat(username)
+            this.status = Status.inChat
+            respuestaDeIA = await enviarMensaje(this.chat, message)
+        }
+        else{
+            respuestaDeIA = await enviarMensaje(this.chat, message)
+        }
 
-        
-        let replyMessage = await message.reply(respuestaDeIA)
-        this.lastBotResponseId = replyMessage.id
+        return respuestaDeIA;
         //let replied = message.reference?.messageId
 
         //message.reply(`Hola manin`)
