@@ -1,61 +1,115 @@
-import path from "path";
-import { fileURLToPath } from 'url';
+import path from "path"
+import { fileURLToPath } from 'url'
 import { fileExists, readJsonFile, writeJsonFile } from "../lib/filesHelper.mts"
-import { TextChannel } from "discord.js";
+import { Client, TextChannel } from "discord.js"
+import 'colors'
+import { fetchTextChannel } from "../lib/helpers.mts"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const CONFIG_PATH = path.join(__dirname, 'data', 'config.json')
+const CONFIG_PATH = __dirname.endsWith('class') ? path.join(__dirname, '..', 'data', 'config.json') : path.join(__dirname, 'data', 'config.json')
 
 if(!fileExists(CONFIG_PATH)){
     writeJsonFile(CONFIG_PATH, {})
 }
 
-class Configuration {
-    public static prefix = '!'
-    public static welcomeChannelID: TextChannel
+export enum configType {
+    string,
+    textChannel,
+    number
+}
 
-    public static propertiesMap = {
-        prefix: String,
-        welcomeChannelID: TextChannel
+type validValues = string|number|TextChannel
+
+export class Configuration {
+
+    public prefix = '!'
+    public welcomeChannelID: TextChannel
+
+    public propertiesMap = {
+        prefix: configType.string,
+        welcomeChannelID: configType.textChannel
     }
 
-    static loadConfig(data: {[key: string]: string|number})
+    private client: Client
+    protected static singleton: Configuration
+
+    private constructor(client: Client) {
+        this.client = client
+    }
+
+    static getConfiguration(client?: Client)
     {
-        for (let propiedad in data) {
-            this[propiedad] = data[propiedad]
+        if (!this.singleton) {
+            if (!client) {
+                console.error("==> Error: Debes proporcionar el cliente de Discord la primera vez que se inicializa la configuración.".red)
+                process.exit(1)
+            }
+
+            const config = new this(client)
+            
+            this.singleton = config
+        }
+
+        return this.singleton
+    }
+
+    async loadConfig(data: {[key: string]: string|number})
+    {
+        for (let prop in data) {
+            if(this.type(prop) == configType.textChannel && data[prop] !== undefined){
+                this[prop] = await fetchTextChannel(this.client, data[prop])
+            }else{
+                this[prop] = data[prop]
+            }
+            
         }
     }
 
-    static getProperties() : string[]
+    getProperties() : string[]
     {
         return Object.keys(this.propertiesMap)
     }
 
-    static type(property: string): String | TextChannel | Number
+    getPropertyType(property: string): configType
     {
-        if(!this.propertiesMap[property]){throw new Error('No existe la propiedad buscada, revisa el código.')}
         return this.propertiesMap[property]
     }
 
-    static async save(): Promise<void>
+    type(property: string): configType
+    {
+        if(this.propertiesMap[property] === undefined){throw new Error('No existe la propiedad buscada, revisa el código.')}
+        return this.propertiesMap[property]
+    }
+
+    async save(): Promise<void>
     {
         const staticProps = this.getProperties()
         
         let content = {}
         staticProps.forEach(prop => {
-            content[prop] = this[prop]
+            if(this.type(prop) == configType.textChannel && this[prop] !== undefined){
+                content[prop] = this[prop].id
+            }
         })
 
         await writeJsonFile(CONFIG_PATH, content)
     }
-}
 
-if(!await fileExists(CONFIG_PATH)){
-    await Configuration.save()
-}else{
-    await Configuration.loadConfig(await readJsonFile(CONFIG_PATH))
-}
+    set(property: string, value: validValues)
+    {
+        this[property] = value
+    }
 
-export { Configuration }
+    async init()
+    {
+        if(!await fileExists(CONFIG_PATH)){
+            await this.save()
+            console.log(`==> Configuración creada en: ${CONFIG_PATH}`.green)
+        }else{
+            await this.loadConfig(await readJsonFile(CONFIG_PATH))
+            console.log(`==> Configuración cargada en: ${CONFIG_PATH}`.green)
+        }
+    }
+}
