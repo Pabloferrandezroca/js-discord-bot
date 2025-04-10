@@ -15,7 +15,7 @@ const client = new Client({
 
 
 client.on(Events.ClientReady, async readyClient  => {
-  console.log(`\t => Sesión iniciada como ${readyClient.user.tag}`.green)
+  console.log(`\t-> Sesión iniciada como ${readyClient.user.tag}`.green)
   configuration = Configuration.getConfiguration(client)
   configuration.init()
 
@@ -40,7 +40,7 @@ client.on(Events.ClientReady, async readyClient  => {
     ) as [any]
 
     //console.log(data)
-    console.log(`\t=> Recargados correctamente ${data.length} comandos de aplicación.`.green);
+    console.log(`\t-> Recargados correctamente ${data.length} comandos de aplicación.`.green);
   } catch (error) {
     console.error(error);
   }
