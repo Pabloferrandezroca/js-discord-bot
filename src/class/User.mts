@@ -3,6 +3,8 @@ import { enviarMensaje, crearChat } from '../lib/gemini.mts';
 import { ChatSession } from "@google/generative-ai"
 import { Configuration } from "./Configuration.mts";
 
+const conf = Configuration.getConfiguration()
+
 export enum Status {
     idle,
     inChat
@@ -54,7 +56,7 @@ class User {
                 switch (args[0]) {
                     case 'configuration':
                         let outMess = ''
-                        Configuration.getProperties().forEach((property) => {
+                        conf.getProperties().forEach((property) => {
                             outMess += `- \`${property} = ${Configuration[property]}\`\n`
                         });
                         let embed = new EmbedBuilder()
@@ -79,13 +81,19 @@ class User {
         }
     }
 
-    public async sendMessage(message: Message): Promise<void>
+    public async sendMessage(message: string, username: string): Promise<string>
     {
-        let respuestaDeIA = await enviarMensaje(this.chat, message.content)
+        let respuestaDeIA = "";
+        if (this.status === Status.idle) {
+            this.chat = crearChat(username)
+            this.status = Status.inChat
+            respuestaDeIA = await enviarMensaje(this.chat, message)
+        }
+        else{
+            respuestaDeIA = await enviarMensaje(this.chat, message)
+        }
 
-        
-        let replyMessage = await message.reply(respuestaDeIA)
-        this.lastBotResponseId = replyMessage.id
+        return respuestaDeIA;
         //let replied = message.reference?.messageId
 
         //message.reply(`Hola manin`)
