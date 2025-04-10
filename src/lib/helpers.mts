@@ -1,4 +1,5 @@
 import { ChannelType, TextChannel, type RepliableInteraction } from "discord.js";
+import { client } from "../bot.mts"
 import 'colors'
 
 
@@ -13,7 +14,7 @@ export function wait(seconds) : Promise<void>
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
 }
 
-export async function fetchTextChannel(client, channelID): Promise<TextChannel | void> {
+export async function fetchTextChannel(channelID: string): Promise<TextChannel | void> {
     try {
         const channel = await client.channels.fetch(channelID);
         if (channel && channel.type === ChannelType.GuildText) {

@@ -3,8 +3,6 @@ import { Configuration } from "../class/Configuration.mts";
 import { welcome } from "../app.mts";
 import { commands } from "./commands.mts";
 
-const conf = Configuration.getConfiguration()
-
 const viewCommand = new SlashCommandBuilder()
     .setName('view')
     .setDescription('Comando para ver la configuracion, miembros del canal, etc...')
@@ -36,8 +34,8 @@ async function viewAction(interaction: ChatInputCommandInteraction) {
     switch (category) {
         case 'config':
             let outMess = '';
-            conf.getProperties().forEach((property) => {
-                outMess += `- \`${property} = ${conf[property]}\`\n`
+            Configuration.getProperties().forEach((property) => {
+                outMess += `- \`${property} = ${Configuration[property]}\`\n`
             });
             let embed = new EmbedBuilder()
                 .setColor(0x0099FF)
