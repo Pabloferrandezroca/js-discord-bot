@@ -12,9 +12,11 @@ type validValues = string|number|TextChannel
 
 export class Configuration {
 
-    public prefix = '!'
-    public welcomeChannelID: TextChannel
-    public warningChannelID: TextChannel
+    public static CONFIG_PATH
+
+    public static prefix = '!'
+    public static welcomeChannelID: TextChannel
+    public static warningChannelID: TextChannel
 
     public static propertiesMap = {
         prefix: configType.string,

@@ -30,4 +30,3 @@ export const slashCommands: CommandCoupleType = {
     [refreshCommand.name]: { command: refreshCommand, action: refreshAction},
     [warnCommand.name]: { command: warnCommand, action: warnAction},
 }
-
