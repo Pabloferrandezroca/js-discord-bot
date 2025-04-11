@@ -1,9 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder, InteractionContextType, MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Configuration } from "../class/Configuration.mts";
 import { welcome } from "../app.mts";
-import { commands } from "./commands.mts";
-
-const conf = Configuration.getConfiguration()
+import { slashCommands } from "./commands.mts";
 
 const viewCommand = new SlashCommandBuilder()
     .setName('view')
@@ -36,8 +34,8 @@ async function viewAction(interaction: ChatInputCommandInteraction) {
     switch (category) {
         case 'config':
             let outMess = '';
-            conf.getProperties().forEach((property) => {
-                outMess += `- \`${property} = ${conf[property]}\`\n`
+            Configuration.getProperties().forEach((property) => {
+                outMess += `- \`${property} = ${Configuration[property]}\`\n`
             });
             let embed = new EmbedBuilder()
                 .setColor(0x0099FF)
@@ -84,7 +82,7 @@ async function viewAction(interaction: ChatInputCommandInteraction) {
                 .setTitle('Lista de comandos')
                 .setDescription('Lista de comandos disponibles')
                 .addFields(
-                    ...Object.entries(commands).map(([name, { command, action }]) => ({
+                    ...Object.entries(slashCommands).map(([name, { command, action }]) => ({
                         name: `/${name}`,
                         value: command.description || 'Sin descripción',
                         inline: false
