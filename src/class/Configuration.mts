@@ -14,12 +14,10 @@ export class Configuration {
 
     public static CONFIG_PATH
 
-    public static prefix = '!'
     public static welcomeChannelID: TextChannel
     public static warningChannelID: TextChannel
 
     public static propertiesMap = {
-        prefix: configType.string,
         welcomeChannelID: configType.textChannel,
         warningChannelID: configType.textChannel
     }

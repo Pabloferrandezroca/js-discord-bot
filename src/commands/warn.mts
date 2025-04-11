@@ -16,9 +16,8 @@ const warnCommand = new SlashCommandBuilder()
 
 async function warnAction(interaction) {
     let configuracion = conf.getProperties()
-    let channel = interaction.options.getChannel(configuracion['warningChannelID'])
     let razon = interaction.options.getString('razon')
-    channel.send({razon})
+    Configuration.warningChannelID.send({content: razon})
 }
 
 export { warnCommand, warnAction }
