@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder, InteractionContextType, MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Configuration } from "../class/Configuration.mts";
 import { welcome } from "../app.mts";
-import { commands } from "./commands.mts";
+import { slashCommands } from "./commands.mts";
 
 const viewCommand = new SlashCommandBuilder()
     .setName('view')
@@ -82,7 +82,7 @@ async function viewAction(interaction: ChatInputCommandInteraction) {
                 .setTitle('Lista de comandos')
                 .setDescription('Lista de comandos disponibles')
                 .addFields(
-                    ...Object.entries(commands).map(([name, { command, action }]) => ({
+                    ...Object.entries(slashCommands).map(([name, { command, action }]) => ({
                         name: `/${name}`,
                         value: command.description || 'Sin descripción',
                         inline: false

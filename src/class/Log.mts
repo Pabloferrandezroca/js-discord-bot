@@ -1,7 +1,7 @@
 import 'colors'
 
 const lev1 = '==> '.white
-const lev2 = ' --> '.white
+const lev2 = '  -> '.white
 
 // enum logLevel {
 //     info,
