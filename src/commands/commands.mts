@@ -5,6 +5,7 @@ import { setCommand, setAction } from './set.mts'
 import { viewCommand, viewAction } from './view.mts'
 import { helpCommand, helpAction } from './help.mts';
 import { refreshCommand, refreshAction } from './refresh.mts';
+import { warnCommand, warnAction } from './warn.mts'
 
 type CommandCoupleType = {
     [x: string]: {
@@ -23,6 +24,7 @@ let commands: CommandCoupleType = {
     [viewCommand.name]: { command: viewCommand, action: viewAction},
     [helpCommand.name]: { command: helpCommand, action: helpAction},
     [refreshCommand.name]: { command: refreshCommand, action: refreshAction},
+    [warnCommand.name]: { command: warnCommand, action: warnAction},
 }
 
 export { commands }

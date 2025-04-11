@@ -26,10 +26,12 @@ export class Configuration {
 
     public prefix = '!'
     public welcomeChannelID: TextChannel
+    public warningChannelID: TextChannel
 
     public propertiesMap = {
         prefix: configType.string,
-        welcomeChannelID: configType.textChannel
+        welcomeChannelID: configType.textChannel,
+        warningChannelID: configType.textChannel
     }
 
     private client: Client

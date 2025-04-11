@@ -16,9 +16,7 @@ async function refreshAction(interaction) {
 
     let slashCommands = []
     for (let propiedad in commands) {
-        if (commands[propiedad][0]?.toJSON) {
-            slashCommands.push(commands[propiedad][0].toJSON());
-        }
+        slashCommands.push(commands[propiedad]["command"])
     }
 
     try {
