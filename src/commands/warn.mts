@@ -1,7 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits, InteractionContextType, GatewayIntentBits, type Channel, TextChannel, MessageFlags } from 'discord.js'
 import { Configuration } from '../class/Configuration.mts'
-import { Bot } from '../class/Bot.mts'
-import { channel } from 'diagnostics_channel';
 
 const conf = Configuration
 const warnCommand = new SlashCommandBuilder()

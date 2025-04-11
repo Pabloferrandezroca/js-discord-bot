@@ -1,6 +1,5 @@
 import { writeJsonFile } from "../lib/filesHelper.mts"
-import { Client, TextChannel } from "discord.js"
-import { fetchTextChannel } from "../lib/helpers.mts"
+import { TextChannel } from "discord.js"
 
 export enum configType {
     string,
