@@ -4,6 +4,7 @@ import { fileExists, readJsonFile, writeJsonFile } from "../lib/filesHelper.mts"
 import { Client, TextChannel } from "discord.js"
 import 'colors'
 import { fetchTextChannel } from "../lib/helpers.mts"
+import { Log } from "./Log.mts"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -68,6 +69,8 @@ export class Configuration {
         staticProps.forEach(prop => {
             if(this.type(prop) == configType.textChannel && this[prop] !== undefined){
                 content[prop] = this[prop].id
+            }else{
+                content[prop] = this[prop]
             }
         })
 
@@ -81,13 +84,13 @@ export class Configuration {
 
     static async init()
     {
-        console.log(`==> Gestionando Configuración`.blue)
+        Log.info('Gestionando Configuración')
         if(!await fileExists(CONFIG_PATH)){
             await this.save()
-            console.log(`\t-> Configuración creada en: ${CONFIG_PATH}`.green)
+            Log.success(`Configuración creada en: ${CONFIG_PATH}`, 1)
         }else{
             await this.loadConfig(await readJsonFile(CONFIG_PATH))
-            console.log(`\t-> Configuración cargada en: ${CONFIG_PATH}`.green)
+            Log.success(`Configuración cargada en: ${CONFIG_PATH}`, 1)
         }
     }
 }
