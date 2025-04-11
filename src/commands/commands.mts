@@ -3,7 +3,6 @@ import { pingCommand, pingAction } from './ping.mts'
 import { setCommand, setAction, setLoadCommand } from './set.mts'
 import { viewCommand, viewAction } from './view.mts'
 import { helpCommand, helpAction } from './help.mts';
-//import { refreshCommand, refreshAction } from './refresh.mts';
 import { warnCommand, warnAction } from './warn.mts'
 
 export type CommandCoupleType = {
@@ -27,6 +26,5 @@ export const slashCommands: CommandCoupleType = {
     [setCommand.name]: { command: setCommand, action: setAction},
     [viewCommand.name]: { command: viewCommand, action: viewAction},
     [helpCommand.name]: { command: helpCommand, action: helpAction},
-    //[refreshCommand.name]: { command: refreshCommand, action: refreshAction},
     [warnCommand.name]: { command: warnCommand, action: warnAction},
 }
