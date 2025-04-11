@@ -56,7 +56,7 @@ Log.info('Cargando slash commands')
 slashCommandsLoadTasks.forEach(async loadFunction => await loadFunction())
 Log.success('Slash commands cargados', 1)
 
-Log.info(`Notificando discord de la existencia de ${slashCommands.length} comandos`)
+Log.info(`Notificando discord de la existencia de ${Object.keys(slashCommands).length} comandos`)
 await rest.put(
     Routes.applicationCommands(process.env.DISCORD_APP_ID),
     { body: Object.values(slashCommands).map(c => c.command) },

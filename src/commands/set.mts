@@ -1,5 +1,6 @@
 import { ChannelType, ChatInputCommandInteraction, InteractionContextType, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { configType, Configuration } from "../class/Configuration.mts"
+import { Log } from "../class/Log.mts";
 
 const setCommand = new SlashCommandBuilder()
     .setName('set')
@@ -59,8 +60,9 @@ let setAction = async (interaction: ChatInputCommandInteraction) => {
 
     interaction.reply({ content: `comando \`${prop}\`, valor: \`${value}\`` })
     Configuration.set(originProp, value)
-    console.log(originProp, Configuration.getProperties(), value)
     Configuration.save()
+    Log.success(`Configuración modificada`)
+    Log.success(``, 1)
 }
 
 

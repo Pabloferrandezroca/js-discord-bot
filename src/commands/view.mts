@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder, InteractionContextType, MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
 import { Configuration } from "../class/Configuration.mts";
-import { welcome } from "../app.mts";
 import { slashCommands } from "./commands.mts";
+import { welcome } from "../res/embedMessages.mts";
 
 const viewCommand = new SlashCommandBuilder()
     .setName('view')
