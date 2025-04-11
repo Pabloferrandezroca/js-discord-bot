@@ -3,7 +3,6 @@ import './class/Bot.mts'
 
 import { Events, EmbedBuilder } from 'discord.js'
 import { Bot } from './class/Bot.mts' 
-import { Log } from './class/Log.mts'
 
 
 let welcome = new EmbedBuilder()
