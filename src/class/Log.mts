@@ -1,39 +1,49 @@
 import 'colors'
 
+const lev1 = '==> '.white
+const lev2 = ' --> '.white
+
+// enum logLevel {
+//     info,
+//     success,
+//     warning,
+//     error
+// }
+
 export class Log {
+    protected static logMessage(msg: string, subCommand: number, color: string)
+    {
+        process.stdout.write(this.getElapsedTime()+' ')
+        process.stdout.write(subCommand === 0 ? lev1 : lev2)
+        process.stdout.write(msg[color])
+        process.stdout.write("\n")
+    }
+
+    protected static getElapsedTime() {
+        const totalSeconds = Math.floor(performance.now() / 1000)
+        const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0')
+        const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0')
+        const s = String(totalSeconds % 60).padStart(2, '0')
+        return `[${h}:${m}:${s}]`;
+      }
+
     static info(msg: string, subCommand = 0)
     {
-        if(subCommand === 0){
-            console.log('==> ' + msg.cyan)
-        }else{
-            console.log('\t-> ' + msg.cyan)
-        }
+        this.logMessage(msg, subCommand, 'cyan')
     }
 
     static success(msg: string, subCommand = 0)
     {
-        if(subCommand === 0){
-            console.log('==> ' + msg.green)
-        }else{
-            console.log('\t-> ' + msg.green)
-        }
+        this.logMessage(msg, subCommand, 'green')
     }
 
     static warn(msg: string, subCommand = 0)
     {
-        if(subCommand === 0){
-            console.log('==> ' + msg.yellow)
-        }else{
-            console.log('\t-> ' + msg.yellow)
-        }
+        this.logMessage(msg, subCommand, 'yellow')
     }
 
     static error(msg: string, subCommand = 0)
     {
-        if(subCommand === 0){
-            console.log('==> ' + msg.red)
-        }else{
-            console.log('\t-> ' + msg.red)
-        }
+        this.logMessage(msg, subCommand, 'red')
     }
 }

@@ -1,10 +1,9 @@
 import { Events, EmbedBuilder } from 'discord.js'
-import { bot, initBot } from './bot.mts'
+import { type BotType } from './class/Bot.mts' 
 
-import './bot.mts'
+//iniciar el bot
+const Bot = await import('./class/Bot.mts') as unknown as BotType
 
-// bot.client.on(Events.ClientReady, async readyClient  => {
-// })
 
 let welcome = new EmbedBuilder()
   .setColor(0x007BFF)
@@ -16,7 +15,7 @@ let welcome = new EmbedBuilder()
     { name: 'Canal para el resto de dudas', value: 'https://discordapp.com/channels/1357254454230909082/1357254454839218178 o https://discordapp.com/channels/1357254454230909082/1357634764500111414' }
   )
 
-  bot.client.on(Events.GuildMemberAdd, async member => {
+  Bot.client.on(Events.GuildMemberAdd, async member => {
   welcome
     .setTitle('Hola ' + member.user.displayName + ", Bienvendido a facturascripts!")
   member.send({ embeds: [welcome] });
@@ -24,9 +23,9 @@ let welcome = new EmbedBuilder()
 })
 export { welcome }
 
-bot.client.on(Events.InteractionCreate, async interaction => {
+Bot.client.on(Events.InteractionCreate, async interaction => {
   if (interaction.isChatInputCommand()) {
-    let command = bot.slashCommands[interaction.commandName]
+    let command = Bot.slashCommands[interaction.commandName]
     
     if (command) {
       command['action'](interaction)
@@ -35,5 +34,3 @@ bot.client.on(Events.InteractionCreate, async interaction => {
     }
   }
 })
-
-initBot()
