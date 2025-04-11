@@ -3,8 +3,6 @@ import { enviarMensaje, crearChat } from '../lib/gemini.mts';
 import { ChatSession } from "@google/generative-ai"
 import { Configuration } from "./Configuration.mts";
 
-const conf = Configuration.getConfiguration()
-
 export enum Status {
     idle,
     inChat
@@ -56,7 +54,7 @@ class User {
                 switch (args[0]) {
                     case 'configuration':
                         let outMess = ''
-                        conf.getProperties().forEach((property) => {
+                        Configuration.getProperties().forEach((property) => {
                             outMess += `- \`${property} = ${Configuration[property]}\`\n`
                         });
                         let embed = new EmbedBuilder()

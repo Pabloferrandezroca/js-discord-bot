@@ -13,8 +13,8 @@
   "scripts": {
     "check": "tsc --noEmit",
     "build": "tsc --noEmit && node esbuild.config.mjs",
-    "dev": "tsc --noEmit && node esbuild.config.mjs && clear && node dist/app.mjs",
-    "dev-noCheck": "node esbuild.config.mjs && clear && node dist/app.mjs"
+    "dev": "tsc --noEmit && node esbuild.config.mjs && node dist/app.mjs",
+    "dev-noCheck": "node esbuild.config.mjs && node dist/app.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.13.16",

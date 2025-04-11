@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction, type SlashCommandOptionsOnlyBuilder, type SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
 import { testCommand, testAction } from './test.mts'
-import { refreshCommandsCommand, refreshCommandsAction } from './refreshCommands.mts'
 import { setCommand, setAction } from './set.mts'
 import { viewCommand, viewAction } from './view.mts'
 import { helpCommand, helpAction } from './help.mts';
@@ -19,7 +18,6 @@ type CommandCoupleType = {
 
 let commands: CommandCoupleType = {
     [testCommand.name]: { command: testCommand, action: testAction},
-    [refreshCommandsCommand.name]: { command: refreshCommandsCommand, action: refreshCommandsAction},
     [setCommand.name]: { command: setCommand, action: setAction},
     [viewCommand.name]: { command: viewCommand, action: viewAction},
     [helpCommand.name]: { command: helpCommand, action: helpAction},
@@ -27,4 +25,4 @@ let commands: CommandCoupleType = {
     [warnCommand.name]: { command: warnCommand, action: warnAction},
 }
 
-export { commands }
+export { commands, type CommandCoupleType }
