@@ -1,4 +1,4 @@
-import { ChannelType, Routes, TextChannel, type RepliableInteraction } from "discord.js";
+import { ChannelType, Client, Routes, TextChannel, type RepliableInteraction } from "discord.js";
 import { Log } from "../class/Log.mts";
 import { Bot } from "../class/Bot.mts";
 
@@ -14,9 +14,9 @@ export function wait(seconds) : Promise<void>
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
 }
 
-export async function fetchTextChannel(channelID: string): Promise<TextChannel | void> {
+export async function fetchTextChannel(client: Client, channelID: string): Promise<TextChannel | void> {
     try {
-        const channel = await Bot.client.channels.fetch(channelID);
+        const channel = await client.channels.fetch(channelID);
         if (channel && channel.type === ChannelType.GuildText) {
             return channel;
         } else {
