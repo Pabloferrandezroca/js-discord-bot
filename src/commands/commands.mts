@@ -1,11 +1,11 @@
 import { ChatInputCommandInteraction, type SlashCommandOptionsOnlyBuilder, type SlashCommandSubcommandsOnlyBuilder } from 'discord.js'
-import { testCommand, testAction } from './test.mts'
-import { setCommand, setAction } from './set.mts'
+import { pingCommand, pingAction } from './ping.mts'
+import { setCommand, setAction, setLoadCommand } from './set.mts'
 import { viewCommand, viewAction } from './view.mts'
 import { helpCommand, helpAction } from './help.mts';
 import { refreshCommand, refreshAction } from './refresh.mts';
 
-type CommandCoupleType = {
+export type CommandCoupleType = {
     [x: string]: {
         command: SlashCommandOptionsOnlyBuilder;
         action: (interaction: ChatInputCommandInteraction) => void;
@@ -15,12 +15,16 @@ type CommandCoupleType = {
     };
 }
 
-let commands: CommandCoupleType = {
-    [testCommand.name]: { command: testCommand, action: testAction},
+export type loadCommandsType = (() => Promise<void>)[]
+
+export const slashCommandsLoadTasks: loadCommandsType = [
+    setLoadCommand
+]
+
+export const slashCommands: CommandCoupleType = {
+    [pingCommand.name]: { command: pingCommand, action: pingAction},
     [setCommand.name]: { command: setCommand, action: setAction},
     [viewCommand.name]: { command: viewCommand, action: viewAction},
     [helpCommand.name]: { command: helpCommand, action: helpAction},
     [refreshCommand.name]: { command: refreshCommand, action: refreshAction},
 }
-
-export { commands, type CommandCoupleType }

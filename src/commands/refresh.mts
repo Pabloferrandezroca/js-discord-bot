@@ -1,5 +1,5 @@
 import { MessageFlags, PermissionFlagsBits, REST, Routes, SlashCommandBuilder } from "discord.js";
-import { commands } from "./commands.mts";
+import { slashCommands as commands } from "./commands.mts";
 
 const refreshCommand = new SlashCommandBuilder()
     .setName('refresh')

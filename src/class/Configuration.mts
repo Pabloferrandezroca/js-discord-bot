@@ -1,19 +1,6 @@
-import path from "path"
-import { fileURLToPath } from 'url'
-import { fileExists, readJsonFile, writeJsonFile } from "../lib/filesHelper.mts"
-import { Client, TextChannel } from "discord.js"
-import 'colors'
+import { writeJsonFile } from "../lib/filesHelper.mts"
+import { TextChannel } from "discord.js"
 import { fetchTextChannel } from "../lib/helpers.mts"
-import { Log } from "./Log.mts"
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const CONFIG_PATH = __dirname.endsWith('class') ? path.join(__dirname, '..', 'data', 'config.json') : path.join(__dirname, 'data', 'config.json')
-
-if(!fileExists(CONFIG_PATH)){
-    writeJsonFile(CONFIG_PATH, {})
-}
 
 export enum configType {
     string,
@@ -24,6 +11,8 @@ export enum configType {
 type validValues = string|number|TextChannel
 
 export class Configuration {
+
+    public static CONFIG_PATH
 
     public static prefix = '!'
     public static welcomeChannelID: TextChannel
@@ -74,23 +63,11 @@ export class Configuration {
             }
         })
 
-        await writeJsonFile(CONFIG_PATH, content)
+        await writeJsonFile(this.CONFIG_PATH, content)
     }
 
     static set(property: string, value: validValues)
     {
         this[property] = value
-    }
-
-    static async init()
-    {
-        Log.info('Gestionando Configuración')
-        if(!await fileExists(CONFIG_PATH)){
-            await this.save()
-            Log.success(`Configuración creada en: ${CONFIG_PATH}`, 1)
-        }else{
-            await this.loadConfig(await readJsonFile(CONFIG_PATH))
-            Log.success(`Configuración cargada en: ${CONFIG_PATH}`, 1)
-        }
     }
 }

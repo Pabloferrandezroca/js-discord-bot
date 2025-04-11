@@ -1,8 +1,9 @@
-import { Events, EmbedBuilder } from 'discord.js'
-import { type BotType } from './class/Bot.mts' 
-
 //iniciar el bot
-const Bot = await import('./class/Bot.mts') as unknown as BotType
+import './class/Bot.mts'
+
+import { Events, EmbedBuilder } from 'discord.js'
+import { Bot } from './class/Bot.mts' 
+import { Log } from './class/Log.mts'
 
 
 let welcome = new EmbedBuilder()
@@ -15,10 +16,10 @@ let welcome = new EmbedBuilder()
     { name: 'Canal para el resto de dudas', value: 'https://discordapp.com/channels/1357254454230909082/1357254454839218178 o https://discordapp.com/channels/1357254454230909082/1357634764500111414' }
   )
 
-  Bot.client.on(Events.GuildMemberAdd, async member => {
+Bot.client.on(Events.GuildMemberAdd, async member => {
   welcome
     .setTitle('Hola ' + member.user.displayName + ", Bienvendido a facturascripts!")
-  member.send({ embeds: [welcome] });
+  member.send({ embeds: [welcome] })
 
 })
 export { welcome }

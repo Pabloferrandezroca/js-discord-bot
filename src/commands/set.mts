@@ -4,45 +4,44 @@ import { configType, Configuration } from "../class/Configuration.mts"
 const setCommand = new SlashCommandBuilder()
     .setName('set')
     .setDescription('Cambiar aspectos de la configuración')
-
-Configuration.getProperties().forEach(prop => {
-    setCommand.addSubcommand(subcommand => {
-        subcommand
-            .setName(prop.toLocaleLowerCase())
-            .setDescription('Una propiedad de la configuración')
-        let confType = Configuration.getPropertyType(prop)
-        if(confType === configType.string){
-            subcommand.addStringOption(option =>
-                option
-                    .setName('value')
-                    .setDescription('Nuevo a aplicar')
-                    .setRequired(true)
-            )
-        }else if(confType === configType.number){
-            subcommand.addNumberOption(option =>
-                option
-                    .setName('value')
-                    .setDescription('Nuevo a aplicar')
-                    .setRequired(true)
-            )
-        }else if (confType === configType.textChannel){
-            subcommand.addChannelOption(option =>
-                option
-                    .setName('value')
-                    .addChannelTypes(ChannelType.GuildText)
-                    .setDescription('Nuevo a aplicar')
-                    .setRequired(true)
-            )
-        }
-
-        return subcommand
-    })
-})
-    
-setCommand
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .setContexts(InteractionContextType.Guild)
 
+const setLoadCommand = async () => {
+    Configuration.getProperties().forEach(prop => {
+        setCommand.addSubcommand(subcommand => {
+            subcommand
+                .setName(prop.toLocaleLowerCase())
+                .setDescription('Una propiedad de la configuración')
+            let confType = Configuration.getPropertyType(prop)
+            if(confType === configType.string){
+                subcommand.addStringOption(option =>
+                    option
+                        .setName('value')
+                        .setDescription('Nuevo a aplicar')
+                        .setRequired(true)
+                )
+            }else if(confType === configType.number){
+                subcommand.addNumberOption(option =>
+                    option
+                        .setName('value')
+                        .setDescription('Nuevo a aplicar')
+                        .setRequired(true)
+                )
+            }else if (confType === configType.textChannel){
+                subcommand.addChannelOption(option =>
+                    option
+                        .setName('value')
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setDescription('Nuevo a aplicar')
+                        .setRequired(true)
+                )
+            }
+    
+            return subcommand
+        })
+    })
+}
 
 let setAction = async (interaction: ChatInputCommandInteraction) => {
     let prop = interaction.options.getSubcommand()
@@ -65,4 +64,4 @@ let setAction = async (interaction: ChatInputCommandInteraction) => {
 }
 
 
-export { setCommand, setAction }
+export { setCommand, setAction, setLoadCommand }
