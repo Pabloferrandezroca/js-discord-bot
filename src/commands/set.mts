@@ -47,22 +47,25 @@ const setLoadCommand = async () => {
 let setAction = async (interaction: ChatInputCommandInteraction) => {
     let prop = interaction.options.getSubcommand()
     let originProp = Configuration.getProperties().find(item => item.toLocaleLowerCase() === prop)
-    let value
+    let value, display
     let confType = Configuration.getPropertyType(originProp)
     if(confType === configType.string){
         value = interaction.options.getString('value')
+        display = value
     }else if(confType === configType.number){
         value = interaction.options.getNumber('value')
+        display = value
     }else if (confType === configType.textChannel){
         value = interaction.options.getChannel('value')
+        display = value.name
     }
 
 
-    interaction.reply({ content: `comando \`${prop}\`, valor: \`${value}\`` })
+    interaction.reply({ content: `comando \`${prop}\`, valor: \`${display}\`` })
     Configuration.set(originProp, value)
     Configuration.save()
-    Log.success(`Configuración modificada`)
-    Log.success(``, 1)
+    Log.success(`Configuración modificada:`)
+    Log.success(`'${originProp}' => [${value}]`, 1)
 }
 
 

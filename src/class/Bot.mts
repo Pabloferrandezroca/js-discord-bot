@@ -1,12 +1,13 @@
 import 'dotenv/config'
 
 import { Client, REST, GatewayIntentBits, Routes, Events } from 'discord.js'
-import { Configuration } from './Configuration.mts'
+import { configType, Configuration } from './Configuration.mts'
 import { Log } from './Log.mts'
 import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mts'
 import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fileURLToPath } from 'url'
 import path from 'path'
+import { fetchTextChannel } from '../lib/helpers.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,7 +38,7 @@ await new Promise<void>(async (resolve, reject) => {
 Log.success(`Sesión iniciada como ${client.user.tag}`, 1)
 
 
-Log.info('Gestionando Configuración')
+Log.info('Cargando Configuración')
 Configuration.CONFIG_PATH = CONFIG_PATH
 if(!fileExists(CONFIG_PATH)){
   writeJsonFile(CONFIG_PATH, {})
@@ -47,10 +48,24 @@ if(!await fileExists(CONFIG_PATH)){
     await Configuration.save()
     Log.success(`Configuración creada en: ${CONFIG_PATH}`, 1)
 }else{
-    await Configuration.loadConfig(await readJsonFile(CONFIG_PATH))
-    Log.success(`Configuración cargada en: ${CONFIG_PATH}`, 1)
+  const data = await readJsonFile(CONFIG_PATH) as {[key: string]: string|number}
+  for (let prop in data) {
+    if(Configuration.type(prop) == configType.textChannel && data[prop] !== undefined){
+        Configuration[prop] = await fetchTextChannel(client, data[prop] as string)
+    }else{
+        Configuration[prop] = data[prop]
+    }
+  
+  }
+  Log.success(`Configuración cargada en: ${CONFIG_PATH}`, 1)
 }
 
+Log.info('Revisando configuración')
+Configuration.getProperties().forEach(prop => {
+  if(Configuration[prop] === undefined){
+    Log.warn(`[${prop}] sin valor, agregalo usando el comando set por favor.`, 1)
+  }
+})
 
 Log.info('Cargando slash commands')
 slashCommandsLoadTasks.forEach(async loadFunction => await loadFunction())

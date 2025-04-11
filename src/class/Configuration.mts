@@ -1,5 +1,5 @@
 import { writeJsonFile } from "../lib/filesHelper.mts"
-import { TextChannel } from "discord.js"
+import { Client, TextChannel } from "discord.js"
 import { fetchTextChannel } from "../lib/helpers.mts"
 
 export enum configType {
@@ -22,18 +22,6 @@ export class Configuration {
         prefix: configType.string,
         welcomeChannelID: configType.textChannel,
         warningChannelID: configType.textChannel
-    }
-
-    static async loadConfig(data: {[key: string]: string|number})
-    {
-        for (let prop in data) {
-            if(this.type(prop) == configType.textChannel && data[prop] !== undefined){
-                this[prop] = await fetchTextChannel(data[prop] as string)
-            }else{
-                this[prop] = data[prop]
-            }
-            
-        }
     }
 
     static getProperties() : string[]
