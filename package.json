@@ -1,5 +1,17 @@
 {
   "type": "module",
+  "license": "MIT",
+  "version": "0.1",
+  "contributors": [
+    {
+      "name": "Abderrahim Darghal Belkacemi",
+      "email": "abdedarghal111@gmail.com"
+    },
+    {
+      "name": "Pablo Ferrandez Roca",
+      "email": "pferrandezroca2@gmail.com"
+    }
+  ],
   "dependencies": {
     "@google/genai": "^0.7.0",
     "@google/generative-ai": "^0.24.0",
