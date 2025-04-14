@@ -59,7 +59,6 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
 
   const user = User.getUser(interaction.user)
   if (user.isInChat()) {
-    // TODO: añadir terminar el chat
     await interaction.editReply({ content: 'Estas actualmente en una sesión de chat. Usa `help endchat` para cerrar el chat.', components: [] })
     return
   }
