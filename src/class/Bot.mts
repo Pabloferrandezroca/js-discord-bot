@@ -7,7 +7,7 @@ import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mt
 import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fileURLToPath } from 'url'
 import path from 'path'
-import { fetchTextChannel } from '../lib/helpers.mts'
+import { fetchTextChannel, notifyDeleteSlashCommands, notifySlashCommands } from '../lib/helpers.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -71,13 +71,22 @@ Log.info('Cargando slash commands')
 slashCommandsLoadTasks.forEach(async loadFunction => await loadFunction())
 Log.success('Slash commands cargados', 1)
 
-Log.info(`Notificando discord de la existencia de ${Object.keys(slashCommands).length} comandos`)
-await rest.put(
-    Routes.applicationCommands(process.env.DISCORD_APP_ID),
-    { body: Object.values(slashCommands).map(c => c.command) },
-)
-.then((data: [any]) => Log.success(`Recargados correctamente ${data.length} comandos de aplicación.`, 1))
-.catch(err => Log.error('Ha habido un error recargando los comandos disponibles.', 1) )
+Log.info(`Actualizando ${Object.keys(slashCommands).length} comandos`)
+
+// notifyDeleteSlashCommands(rest)
+// .then(() => Log.info(`Borrados comandos antiguos de discord`, 1))
+// .catch(err => {
+//   Log.error('Ha habido un error en la petición de borrado a discord', 1)
+//   // console.log(err)
+// })
+
+await notifySlashCommands(rest, slashCommands)
+.then((data: [any]) => Log.success(`Actualizados correctamente ${data.length} comandos`, 1))
+.catch(err => {
+  Log.error('Ha habido un error en la petición de actualización de los comandos de aplicación', 1)
+  // console.log(err)
+})
+
 
 export class Bot {
   public static client = client

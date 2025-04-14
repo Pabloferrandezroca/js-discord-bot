@@ -16,12 +16,14 @@ export class Configuration {
 
     public static prefix = '!'
     public static welcomeChannelID: TextChannel
+    public static helpIAChannel: TextChannel
     public static warningChannelID: TextChannel
 
     public static propertiesMap = {
         prefix: configType.string,
         welcomeChannelID: configType.textChannel,
-        warningChannelID: configType.textChannel
+        warningChannelID: configType.textChannel,
+        helpIAChannel: configType.textChannel
     }
 
     static getProperties() : string[]

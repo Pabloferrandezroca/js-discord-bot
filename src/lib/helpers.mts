@@ -1,6 +1,6 @@
-import { ChannelType, Client, Routes, TextChannel, type RepliableInteraction } from "discord.js";
+import { ChannelType, Client, REST, Routes, TextChannel, type RepliableInteraction } from "discord.js";
 import { Log } from "../class/Log.mts";
-import { Bot } from "../class/Bot.mts";
+import { type CommandCoupleType } from "../commands/commands.mts";
 
 
 export async function replyAndDelete(timeout: number, instance: RepliableInteraction, content: {}){
@@ -29,51 +29,44 @@ export async function fetchTextChannel(client: Client, channelID: string): Promi
     }
 }
 
-export async function notifySlashCommands(): Promise<[any]>
+export async function notifySlashCommands(rest: REST, slashCommands: CommandCoupleType): Promise<[any]>
 {
     let commands = []
-    let slashCommands = Bot.slashCommands
     for (let propiedad in slashCommands) {
         commands.push(slashCommands[propiedad]["command"])
     }
     
-    Log.info(`Informando sobre la existencia de ${slashCommands.length} comandos de aplicación.`)
+    // Log.info(`Informando sobre la existencia de ${slashCommands.length} comandos de aplicación.`)
 
-    const data = await Bot.rest.put(
+    const data = await rest.put(
         Routes.applicationCommands(process.env.DISCORD_APP_ID),
-        { body: slashCommands },
+        { body: commands },
     ) as [any]
 
-    Log.success(`Recargados correctamente ${data.length} comandos de aplicación.`, 1)
+    // Log.success(`Recargados correctamente ${data.length} comandos de aplicación.`, 1)
     return data
 }
 
-export async function notifyDeleteSlashCommands(): Promise<void>
+export async function notifyDeleteSlashCommands(rest: REST): Promise<void>
 {
-    let commands = []
-    let slashCommands = Bot.slashCommands
-    for (let propiedad in slashCommands) {
-        commands.push(slashCommands[propiedad]["command"])
-    }
     
-    Log.info(`Eliminando interacciones en discord`)
+    // Log.info(`Eliminando interacciones en discord`)
 
-    await Bot.rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })
+    return await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] }) as any
 
-    Log.success(`Interacciones antiguas eliminadas correctamente`, 1)
+    // Log.success(`Interacciones antiguas eliminadas correctamente`, 1)
 }
 
-export async function getDiscordSlashCommands(): Promise<[any]>
+export async function getDiscordSlashCommands(rest: REST, slashCommands: CommandCoupleType): Promise<[any]>
 {
     let commands = []
-    let slashCommands = Bot.slashCommands
     for (let propiedad in slashCommands) {
         commands.push(slashCommands[propiedad]["command"])
     }
     
     Log.info(`Obteniendo interacciones remotas en discord`)
 
-    let comandos = (await Bot.rest.get(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })) as [any]
+    let comandos = (await rest.get(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })) as [any]
 
     Log.success(`Obtenidas ${comandos.length} reacciones`, 1)
 
