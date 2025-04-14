@@ -19,8 +19,8 @@ export class Configuration {
 
     public static propertiesMap = {
         welcomeChannelID: configType.textChannel,
+        helpIAChannel: configType.textChannel,
         warningChannelID: configType.textChannel,
-        helpIAChannel: configType.textChannel
     }
 
     static getProperties() : string[]

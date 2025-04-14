@@ -7,7 +7,7 @@ import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mt
 import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fileURLToPath } from 'url'
 import path from 'path'
-import { fetchTextChannel, notifyDeleteSlashCommands, notifySlashCommands } from '../lib/helpers.mts'
+import { fetchTextChannel, generateSecurityCode, notifyDeleteSlashCommands, notifySlashCommands } from '../lib/helpers.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -92,6 +92,9 @@ export class Bot {
   public static client = client
   public static rest = rest
   public static slashCommands = slashCommands
+  public static securityCode = generateSecurityCode(6)
 }
+
+Log.warn(`Código de seguridad para comandos sensibles: [${Bot.securityCode}]`)
 
 Log.success(`✅ Bot listo en ${(Math.floor(performance.now()) / 1000).toString().replace('.',',')}s`)
