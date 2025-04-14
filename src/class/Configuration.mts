@@ -14,11 +14,13 @@ export class Configuration {
     public static CONFIG_PATH
 
     public static welcomeChannelID: TextChannel
+    public static helpIAChannel: TextChannel
     public static warningChannelID: TextChannel
 
     public static propertiesMap = {
         welcomeChannelID: configType.textChannel,
-        warningChannelID: configType.textChannel
+        warningChannelID: configType.textChannel,
+        helpIAChannel: configType.textChannel
     }
 
     static getProperties() : string[]

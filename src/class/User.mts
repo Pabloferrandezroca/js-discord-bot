@@ -1,20 +1,31 @@
-import { EmbedBuilder, Message } from "discord.js"
+import { EmbedBuilder, Message, User as DiscordUser } from "discord.js"
 import { enviarMensaje, crearChat } from '../lib/gemini.mts';
 import { ChatSession } from "@google/generative-ai"
-import { Configuration } from "./Configuration.mts";
+import { Bot } from "./Bot.mts";
 
 export enum Status {
     idle,
     inChat
 }
 
+// case 'test':
+// message.react('✅')
+// if (args.length > 9) {
+//     message.react('🔼')
+//     message.react('9️⃣')
+// } else {
+//     message.react(String.fromCodePoint(0x0030 + args.length) + "\u20E3")
+// }
+// return
+
 class User {
     protected static users: {[key:string]: User} = {}
 
+    protected discordUser: DiscordUser
     protected id: string
     protected chat: ChatSession|null
+    public lastIAMessage: Message|null
     protected status = Status.idle
-    protected lastBotResponseId: string = ""
 
     protected constructor(userID: string)
     {
@@ -23,85 +34,34 @@ class User {
         return this
     }
 
-    public static getUser(userID: string): User
+    public static getUser(user: DiscordUser): User
     {
+        let userID = user.id
         return User.users[userID] ? User.users[userID] : new User(userID)
     }
 
-    public async sentCommand(command: string, args: string[], message: Message): Promise<void>
+    public async getDiscordUser(): Promise<DiscordUser>
     {
-        switch (command) {
-            case 'test':
-                message.react('✅')
-                if(args.length > 9){
-                    message.react('🔼')
-                    message.react('9️⃣')
-                }else{
-                    message.react(String.fromCodePoint(0x0030 + args.length)+"\u20E3")
-                }
-                return
-            case 'ayuda':
-                if(this.status !== Status.inChat){
-                    let replyMessage = await message.reply(`Hola ${message.author.displayName}, ¿en que puedo ayudarte hoy?||responde a este mensaje para comunicarte conmigo||`)
-                    this.chat = crearChat(message.author.displayName)
-                    this.lastBotResponseId = replyMessage.id
-                    this.status = Status.inChat
-                }else{
-                    message.reply('Ya estás en un chat, usa `!terminar chat` para cerrarlo.')
-                }
-                return
-            case 'show':
-                switch (args[0]) {
-                    case 'configuration':
-                        let outMess = ''
-                        Configuration.getProperties().forEach((property) => {
-                            outMess += `- \`${property} = ${Configuration[property]}\`\n`
-                        });
-                        let embed = new EmbedBuilder()
-                            .setColor(0x0099FF)
-                            .setTitle('Propiedades')
-                            .setDescription(outMess)
-                            // .setThumbnail('https://i.imgur.com/AfFp7pu.png')
-                            // .addFields(
-                            //     { name: 'Regular field title', value: 'Some value here' },
-                            //     { name: '\u200B', value: '\u200B' },
-                            //     { name: 'Inline field title', value: 'Some value here', inline: true },
-                            //     { name: 'Inline field title', value: 'Some value here', inline: true },
-                            // )
-                            // .addFields({ name: 'Inline field title', value: 'Some value here', inline: true })
-                            // .setImage('https://i.imgur.com/AfFp7pu.png')
-                            .setTimestamp()
-                            // .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
-                        
-                        message.reply({ embeds: [embed] })
-                        return
-                }
-        }
+        return await Bot.client.users.fetch(this.id)
     }
 
-    public async sendMessage(message: string, username: string): Promise<string>
+    public getID(): string
     {
-        let respuestaDeIA = "";
-        if (this.status === Status.idle) {
-            this.chat = crearChat(username)
+        return this.id
+    }
+
+    public async startChat(username: string)
+    {
+        if (!this.isInChat()) {
             this.status = Status.inChat
-            respuestaDeIA = await enviarMensaje(this.chat, message)
-        }
-        else{
-            respuestaDeIA = await enviarMensaje(this.chat, message)
+            this.chat = crearChat(username)
         }
 
-        return respuestaDeIA;
-        //let replied = message.reference?.messageId
+    }
 
-        //message.reply(`Hola manin`)
-        // if (enviadoPorBotID === replied){
-        //     message.reply("A esta te respondo yo")
-        // }
-        // if (message.content.toLocaleLowerCase() == "ping") {
-        //     let mess = await message.reply("Te esperabas pong no? "+message.author.username+" pues no te la llevas")
-        //     enviadoPorBotID = mess.id
-        // }
+    public async sendMessage(message: string): Promise<string>
+    {
+        return await enviarMensaje(this.chat, message);
     }
 
     public isInChat(): boolean
@@ -109,9 +69,10 @@ class User {
         return this.status === Status.inChat
     }
 
-    public isLastChatMessage(message): boolean
+    public endChat(): void
     {
-        return this.lastBotResponseId === message.reference?.messageId
+        this.status = Status.idle
+        this.chat = undefined
     }
 }
 
