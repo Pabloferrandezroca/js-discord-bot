@@ -2,10 +2,10 @@ import 'dotenv/config'
 import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai"
 
 const genAI = new GoogleGenerativeAI(process.env.CHATBOT_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
-const CHATBOT_PROMPT = 
-`[system]Eres una inteligencia artificial profesional hecha para ayudar a los usuarios
+const SYSTEM_PROMPT = 
+`Eres una inteligencia artificial profesional hecha para ayudar a los usuarios
 en temas de programación en español y más concretamente sobre un Software ERP de código abierto 
 desarrollado con PHP moderno y Bootstrap 4 Fácil y potente llamado Facturascripts.
 El tipo de usuario que puede venir es general, las dudas pueden estar no relacionadas pero
@@ -21,12 +21,16 @@ export function crearChat(username: string)
       {
         role: 'user',
         parts: [{ 
-          text: CHATBOT_PROMPT
+          text: SYSTEM_PROMPT
         }],
       },
       {
+        role: 'model',
+        parts: [{ text: `ok` }],
+      },
+      {
         role: 'user',
-        parts: [{ text: '[user]Hola, necesito ayuda' }],
+        parts: [{ text: 'Hola, necesito ayuda' }],
       },
       {
         role: 'model',
@@ -34,7 +38,7 @@ export function crearChat(username: string)
       },
     ],
     generationConfig: {
-      maxOutputTokens: 100,
+      maxOutputTokens: 100_000,
     },
   });
 
@@ -43,7 +47,7 @@ export function crearChat(username: string)
 
 export async function enviarMensaje(chat: ChatSession, mensaje: string): Promise<string>
 {
-  const result = await chat.sendMessage('[user]'+mensaje);
+  const result = await chat.sendMessage(mensaje);
   const respuesta = await result.response;
   return respuesta.text();
 }

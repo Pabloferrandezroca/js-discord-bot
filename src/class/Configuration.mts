@@ -45,7 +45,7 @@ export class Configuration {
         
         let content = {}
         staticProps.forEach(prop => {
-            if(this.type(prop) == configType.textChannel && this[prop] !== undefined){
+            if(this.type(prop) == configType.textChannel && this[prop]){
                 content[prop] = this[prop].id
             }else{
                 content[prop] = this[prop]
