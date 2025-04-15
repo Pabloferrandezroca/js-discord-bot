@@ -1,7 +1,7 @@
 //iniciar el bot
 import './class/Bot.mts'
 
-import { Events, EmbedBuilder, MessageFlags } from 'discord.js'
+import { Events, EmbedBuilder, MessageFlags, Client } from 'discord.js'
 import { Bot } from './class/Bot.mts'
 
 import { welcome } from './res/embedMessages.mts'
@@ -21,6 +21,12 @@ Bot.client.on(Events.GuildMemberAdd, async member => {
     await Configuration.welcomeChannelID.send({ embeds: [welcome] })
   }
 
+})
+
+Bot.client.on(Events.MessageCreate, async message => {
+  if(message.mentions.has(Bot.client.user)){
+    
+  }
 })
 
 Bot.client.on(Events.InteractionCreate, async interaction => {
