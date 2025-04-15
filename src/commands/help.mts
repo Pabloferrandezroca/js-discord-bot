@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Collection, Message, MessageFlags, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle, type Snowflake } from "discord.js";
 import { User } from "../class/User.mts";
 import { Configuration } from "../class/Configuration.mts";
+import { Log } from "../class/Log.mts";
 
 const helpCommand = new SlashCommandBuilder()
   .setName('help')
@@ -70,14 +71,16 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
   while (true) {
     try {
       const collected = await AI_CHANNEL.awaitMessages({
-        filter: msg => msg.reference?.messageId === AIMessage.id && msg.author.id === user.getID(),
+        filter: msg => msg.reference?.messageId === user.lastIAMessage.id && msg.author.id === user.getID(),
         max: 1,
         time: 15 * 60 * 1000
       })
 
       const userResponse = collected.first();
 
+      
       let generatedMessage = await user.sendMessage(userResponse.content)
+      Log.info(`Ha respondido: ${generatedMessage}`)
       if(generatedMessage.includes('$$END_CHAT$$')) {
         let replyMessage = generatedMessage.replace('$$END_CHAT$$', '').trimEnd() + 
         '\n - **Se ha cerrado la conversación (dada por finalizada)**'
@@ -86,11 +89,11 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
         })
         user.endChat()
         return
-      }else{
-        user.lastIAMessage = await userResponse.reply({
-          content: generatedMessage
-        })
       }
+
+      user.lastIAMessage = await userResponse.reply({
+        content: generatedMessage
+      })
 
     } catch (err) {
       await AIMessage.edit(AIMessage.content + '\n - **Se ha cerrado la conversación por inactividad**')
@@ -110,10 +113,10 @@ async function stopChatbotAction(interaction: ChatInputCommandInteraction)
       content: replyMessage
     })
     user.endChat()
-    // await interaction.reply({
-    //   content: "Se ha cerrado la conversación correctamente.", 
-    //   flags: MessageFlags.Ephemeral
-    // })
+    await interaction.reply({
+      content: "Se ha cerrado la conversación correctamente.", 
+      flags: MessageFlags.Ephemeral
+    })
   }else{
     await interaction.reply({
       content: "No hay ninguna conversación abierta.", 
