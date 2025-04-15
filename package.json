@@ -24,9 +24,11 @@
   },
   "scripts": {
     "check": "tsc --noEmit",
-    "build": "tsc --noEmit && node esbuild.config.mjs",
-    "dev": "tsc --noEmit && node esbuild.config.mjs && node dist/app.mjs",
-    "dev-noCheck": "node esbuild.config.mjs && node dist/app.mjs"
+    "build": "tsc --noEmit && node esbuild.config.mjs --production",
+    "build-dev": "tsc --noEmit && node esbuild.config.mjs --developing",
+    "dev": "tsc --noEmit && node esbuild.config.mjs --developing && node dist/app.mjs",
+    "dev-noCheck": "node esbuild.config.mjs --developing && node dist/app.mjs",
+    "clean": "node esbuild.config.mjs --clean"
   },
   "devDependencies": {
     "@types/node": "^22.13.16",

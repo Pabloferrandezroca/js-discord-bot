@@ -16,11 +16,14 @@ Este repositorio contiene el código fuente de un bot que contiene las siguiente
 
 ### Instrucciones
 
-1. Primero crea el fichero de variables de entorno para tus credenciales
+1. El paso previo es registrar el bot en la [web de discord](https://discord.com/developers/applications).
+    - En [este video](https://www.youtube.com/watch?v=CaPBYyPX0rM&t=287s) se realiza ese paso desde el minuto 5:01 hasta 7:26
+2. Una vez hecho eso, se crea el fichero de variables de entorno para tus credenciales (no se comparten con nadie)
     - Hacer `cp .env.template .env` y modificar o revisar el propio fichero (contiene instrucciones)
-2. Instalar depencencias
-    - Ejecutar `npm install`o `yarn install`
-3. Compilar o compilar y ejecutar
+    - Casi todos los datos a rellenar se recogen del registro del bot en la web de discord
+3. Instalar depencencias
+    - Ejecutar `npm install`o `yarn install` (si dan errores los paquetes mejor usar `yarn`)
+4. Compilar o compilar y ejecutar
     - Con `npm run dev` se compila y ejecuta
     - Con `npm run build` se compila solo
     - Con `node ./dist/app.mts` se ejecuta
