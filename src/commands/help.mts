@@ -1,7 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Collection, Message, MessageFlags, ModalBuilder, SlashCommandBuilder, TextChannel, TextInputBuilder, TextInputStyle, type Snowflake } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Collection, Message, MessageFlags, ModalBuilder, SlashCommandBuilder, TextChannel, TextInputBuilder, TextInputStyle, ThreadAutoArchiveDuration, type Snowflake } from "discord.js";
 import { User } from "../class/User.mts";
 import { Configuration } from "../class/Configuration.mts";
 import { Log } from "../class/Log.mts";
+import { Bot } from "../class/Bot.mts";
 
 const helpCommand = new SlashCommandBuilder()
   .setName('help')
@@ -23,11 +24,11 @@ const helpCommand = new SlashCommandBuilder()
 const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
   const AI_CHANNEL = Configuration.helpIAChannel
 
-  //interaction.deferReply()
-  if (interaction.channelId !== AI_CHANNEL.id) {
-    await interaction.reply({ content: "El comando solo funciona en el canal programacion", flags: MessageFlags.Ephemeral })
-    return
-  }
+  //await interaction.deferReply()
+  // if (interaction.channelId !== AI_CHANNEL.id) {
+  //   await interaction.reply({ content: "El comando solo funciona en el canal programacion", flags: MessageFlags.Ephemeral })
+  //   return
+  // }
 
   let replyMessageText = `<@${interaction.user.id}> se va a abrir un chat con un chatbot para que te ayude.\n`
     + '- Responderá a tu mensaje cuando sea una **respuesta** al **último** mensaje enviado del bot.\n'
@@ -60,18 +61,30 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
 
   const user = User.getUser(interaction.user)
   if (user.isInChat()) {
-    await interaction.editReply({ content: 'Estas actualmente en una sesión de chat. Usa `help endchat` para cerrar el chat.', components: [] })
+    await interaction.editReply({ 
+      content: `Estas actualmente en una sesión de chat. Usa \`help endchat\` para cerrar el chat.`
+      , components: []
+    })
+    //Hola <@${user.getID()}>, ¿en que puedo ayudarte hoy?
     return
   }
-
   user.startChat(interaction.user.displayName)
+  Log.warn("estoy en chat")
+
+  const thread = await AI_CHANNEL.threads.create({
+    name: 'Asistente virtual',
+    autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+    reason: 'Hilo para ser asistido por asistente y no molestar en el canal principal.',
+  })
+
+  await thread.members.add(user.getID());
   await interaction.deleteReply()
-  let AIMessage: Message = await AI_CHANNEL.send(`Hola <@${user.getID()}>, ¿en que puedo ayudarte hoy?`)
+  let AIMessage = await thread.send(`Hola <@${user.getID()}>, ¿en que puedo ayudarte hoy?`)
   user.lastIAMessage = AIMessage
-  while (true) {
+  while (user.isInChat()) {
     try {
-      const collected = await AI_CHANNEL.awaitMessages({
-        filter: msg => msg.reference?.messageId === user.lastIAMessage.id && msg.author.id === user.getID(),
+      const collected = await thread.awaitMessages({
+        filter: msg => msg.author.id !== Bot.client.user.id,
         max: 1,
         time: 15 * 60 * 1000
       })
@@ -84,27 +97,32 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
       const userResponse = collected.first();
 
       await (userResponse.channel as TextChannel).sendTyping()
-      let generatedMessage = await user.sendMessage(userResponse.content)
+
+      let generatedMessage = await user.sendMessage(`[User:${userResponse.author.username}]:` + userResponse.content)
+
       if(generatedMessage.length > 2000){
+        Log.warn('pilla mas de 2000')
         generatedMessage = generatedMessage.substring(0, 2000)
       }
-      Log.info(`Ha respondido: ${generatedMessage}`)
+
       if(generatedMessage.includes('$$END_CHAT$$')) {
-        let replyMessage = generatedMessage.replace('$$END_CHAT$$', '').trimEnd() + 
-        '\n - **Se ha cerrado la conversación (dada por finalizada)**'
-        user.lastIAMessage = await userResponse.reply({
-          content: replyMessage
-        })
+        let msg = generatedMessage.replace('$$END_CHAT$$', '').trimEnd()
+        if(msg.trim() !== ""){
+          user.lastIAMessage = await userResponse.reply({content: msg})
+        }
+        await user.lastIAMessage.reply('- **Se ha cerrado la conversación (dada por finalizada)**')
         user.endChat()
         return
-      }
-
-      user.lastIAMessage = await userResponse.reply({
+      }else{
+        user.lastIAMessage = await userResponse.reply({
         content: generatedMessage
       })
+      }
+
+      
 
     } catch (err) {
-      await AIMessage.edit(AIMessage.content + '\n - **Se ha cerrado la conversación (error interno del bot)**')
+      AIMessage.reply('- **Se ha cerrado la conversación (error interno del bot)**')
       console.error(err)
       user.endChat()
       return
@@ -116,16 +134,12 @@ async function stopChatbotAction(interaction: ChatInputCommandInteraction)
 {
   let user = User.getUser(interaction.user)
   if(user.isInChat()){
-    let replyMessage = user.lastIAMessage.content +
-    '\n - **Se ha cerrado la conversación (cerrada por el usuario)**'
-    user.lastIAMessage = await user.lastIAMessage.edit({
-      content: replyMessage
-    })
+    user.lastIAMessage = await user.lastIAMessage.reply('- **Se ha cerrado la conversación (cerrada por el usuario)**')
     user.endChat()
-    await interaction.reply({
-      content: "Se ha cerrado la conversación correctamente.", 
-      flags: MessageFlags.Ephemeral
-    })
+    // await interaction.reply({
+    //   content: "Se ha cerrado la conversación correctamente.", 
+    //   flags: MessageFlags.Ephemeral
+    // })
   }else{
     await interaction.reply({
       content: "No hay ninguna conversación abierta.", 

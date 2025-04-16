@@ -1,7 +1,7 @@
-import { EmbedBuilder, Message, User as DiscordUser } from "discord.js"
+import { Message, User as DiscordUser } from "discord.js"
 import { enviarMensaje, crearChat } from '../lib/gemini.mts';
-import { ChatSession } from "@google/generative-ai"
 import { Bot } from "./Bot.mts";
+import type { Chat } from "@google/genai";
 
 export enum Status {
     idle,
@@ -23,7 +23,7 @@ class User {
 
     protected discordUser: DiscordUser
     protected id: string
-    protected chat: ChatSession|null
+    protected chat: Chat|null
     public lastIAMessage: Message|null
     protected status = Status.idle
 
