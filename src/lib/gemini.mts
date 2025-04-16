@@ -40,7 +40,7 @@ export function crearChat(username: string) : Chat
   return chat;
 }
 
-export async function enviarMensaje(mensaje: string): Promise<string>
+export async function enviarMensaje(chat: Chat, mensaje: string): Promise<string>
 {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY! })
