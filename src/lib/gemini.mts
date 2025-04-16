@@ -1,11 +1,11 @@
 import 'dotenv/config'
-import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai"
-import { Chat, GoogleGenAI } from "@google/genai";
+import { Chat, GoogleGenAI } from '@google/genai'
 
-const genAI = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY });
+const genAI = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY })
 
 const SYSTEM_PROMPT = 
-`Eres una inteligencia artificial profesional hecha para ayudar a los usuarios
+`
+Eres una inteligencia artificial profesional hecha para ayudar a los usuarios
 en temas de programación en español y más concretamente sobre un Software ERP de código abierto 
 desarrollado con PHP moderno y Bootstrap 4 Fácil y potente llamado Facturascripts.
 El tipo de usuario que puede venir es general, las dudas pueden estar no relacionadas pero
@@ -31,7 +31,7 @@ export function crearChat(username: string) : Chat
     ],
     config: {
       systemInstruction: SYSTEM_PROMPT,
-      maxOutputTokens: 1_000_000,
+      maxOutputTokens: 1_000_000, // 0.08 centimos cada 1.000.000 de token gemini-2.0-flash-lite y gasta 8.000 tokens aprox con cada respuesta como máximo
       //stopSequences: ['$$END_CHAT$$']
     }
     
@@ -51,27 +51,25 @@ export async function enviarMensaje(mensaje: string): Promise<string>
     return response.text
   } catch (error) {
     console.error(error)
-    return '[chatbot api error]'
+    return '[chatbot api error]$$END_CHAT$$'
   }
 }
 
-
-export async function generarMensajeHuerfano(message: string) : Promise<string>
+export async function generarMensajeHuerfano(message: string, systemPrompt: string) : Promise<string>
 {
   try {
     let result = await genAI.models.generateContent({
       model: "gemini-2.0-flash-lite",
       contents: message,
       config: {
-        systemInstruction: 'Tienes que hacerle bulling a Pablo',
-        
+        systemInstruction: systemPrompt,
       }
     })
   
     return await result.text
   } catch (error) {
     console.error(error)
-    return '[chatbot api error]END_CHAT'
+    return '[chatbot api error]$$END_CHAT$$'
   }
 }
 

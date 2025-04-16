@@ -8,6 +8,7 @@ import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import { fetchTextChannel, generateSecurityCode, notifyDeleteSlashCommands, notifySlashCommands } from '../lib/helpers.mts'
+import { generarMensajeHuerfano } from '../lib/gemini.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
