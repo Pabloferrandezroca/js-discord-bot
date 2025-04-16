@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Collection, Message, MessageFlags, ModalBuilder, SlashCommandBuilder, TextInputBuilder, TextInputStyle, type Snowflake } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Collection, Message, MessageFlags, ModalBuilder, SlashCommandBuilder, TextChannel, TextInputBuilder, TextInputStyle, type Snowflake } from "discord.js";
 import { User } from "../class/User.mts";
 import { Configuration } from "../class/Configuration.mts";
 import { Log } from "../class/Log.mts";
@@ -76,10 +76,18 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
         time: 15 * 60 * 1000
       })
 
+      if(collected.size === 0){
+        await AIMessage.edit(AIMessage.content + '\n - **Se ha cerrado la conversación por inactividad**')
+        user.endChat()
+        return
+      }
       const userResponse = collected.first();
 
-      
+      await (userResponse.channel as TextChannel).sendTyping()
       let generatedMessage = await user.sendMessage(userResponse.content)
+      if(generatedMessage.length > 2000){
+        generatedMessage = generatedMessage.substring(0, 2000)
+      }
       Log.info(`Ha respondido: ${generatedMessage}`)
       if(generatedMessage.includes('$$END_CHAT$$')) {
         let replyMessage = generatedMessage.replace('$$END_CHAT$$', '').trimEnd() + 
@@ -96,7 +104,8 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
       })
 
     } catch (err) {
-      await AIMessage.edit(AIMessage.content + '\n - **Se ha cerrado la conversación por inactividad**')
+      await AIMessage.edit(AIMessage.content + '\n - **Se ha cerrado la conversación (error interno del bot)**')
+      console.error(err)
       user.endChat()
       return
     }
