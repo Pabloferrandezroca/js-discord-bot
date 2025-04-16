@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai"
+import { GoogleGenAI } from "@google/genai";
 
 const genAI = new GoogleGenerativeAI(process.env.CHATBOT_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
@@ -49,9 +50,12 @@ export function crearChat(username: string)
 export async function generarMensajeHuerfano(message: string)
 {
   try {
-    let result = await model.generateContent(message)
-  
-    return result.response
+    const ai = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY! })
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: message,
+    });
+    return response.text
   } catch (error) {
     console.error(error)
     return '[chatbot api error]'

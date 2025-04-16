@@ -7,6 +7,7 @@ import { Bot } from './class/Bot.mts'
 import { welcome } from './res/embedMessages.mts'
 import { Log } from './class/Log.mts'
 import { Configuration } from './class/Configuration.mts'
+import { generarMensajeHuerfano } from './lib/gemini.mts'
 
 Bot.client.on(Events.GuildMemberAdd, async member => {
   if (Configuration.welcomeChannelID === undefined) {
@@ -25,7 +26,8 @@ Bot.client.on(Events.GuildMemberAdd, async member => {
 
 Bot.client.on(Events.MessageCreate, async message => {
   if(message.mentions.has(Bot.client.user)){
-    
+    let respuesta = await generarMensajeHuerfano(message.content)
+    message.reply({ content: respuesta.toString() })
   }
 })
 
