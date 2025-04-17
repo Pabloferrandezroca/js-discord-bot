@@ -3,6 +3,7 @@ import { User } from "../class/User.mts";
 import { Configuration } from "../class/Configuration.mts";
 import { Log } from "../class/Log.mts";
 import { Bot } from "../class/Bot.mts";
+import { replaceMentionsWithUsernames, replaceUsernamesWithMentions } from "../lib/helpers.mts";
 
 const helpCommand = new SlashCommandBuilder()
   .setName('help')
@@ -69,7 +70,6 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
     return
   }
   user.startChat(interaction.user.displayName)
-  Log.warn("estoy en chat")
 
   const thread = await AI_CHANNEL.threads.create({
     name: 'Asistente virtual',
@@ -77,7 +77,7 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
     reason: 'Hilo para ser asistido por asistente y no molestar en el canal principal.',
   })
 
-  await thread.members.add(user.getID());
+  //await thread.members.add(user.getID())
   await interaction.deleteReply()
   let AIMessage = await thread.send(`Hola <@${user.getID()}>, ¿en que puedo ayudarte hoy?`)
   user.lastIAMessage = AIMessage
@@ -98,8 +98,12 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
 
       await (userResponse.channel as TextChannel).sendTyping()
 
-      let generatedMessage = await user.sendMessage(`[User:${userResponse.author.username}]:` + userResponse.content)
-
+      let usermsg = await replaceMentionsWithUsernames(userResponse.content, userResponse.guild)
+      //userResponse.content.replaceAll(`<@${Bot.client.user.id}>`, `<@${Bot.client.user.username}>`)
+      Log.warn(usermsg)
+      let generatedMessage = await user.sendMessage(`[User:${userResponse.author.username}]:` + usermsg)
+      generatedMessage = await replaceUsernamesWithMentions(generatedMessage, userResponse.guild)
+      Log.info(generatedMessage)
       if(generatedMessage.length > 2000){
         Log.warn('pilla mas de 2000')
         generatedMessage = generatedMessage.substring(0, 2000)

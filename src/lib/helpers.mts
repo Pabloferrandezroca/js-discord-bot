@@ -1,4 +1,4 @@
-import { ChannelType, Client, REST, Routes, TextChannel, type RepliableInteraction } from "discord.js";
+import { ChannelType, Client, Guild, REST, Routes, TextChannel, type RepliableInteraction } from "discord.js";
 import { Log } from "../class/Log.mts";
 import { type CommandCoupleType } from "../commands/commands.mts";
 
@@ -82,3 +82,47 @@ export function generateSecurityCode(length: number): string
     }
     return result;
 }
+
+export async function replaceMentionsWithUsernames(input: string,guild: Guild): Promise<string> 
+{
+    const mentionRegex = /<@!?(\d+)>/g///<@!?(\d+)>/g => incluye roles
+    const matches = [...input.matchAll(mentionRegex)]
+
+    const uniqueIds = [...new Set(matches.map(match => match[1]))]
+
+    const userMap: Record<string, string> = {}
+
+    for (const id of uniqueIds) {
+        try {
+            const member = await guild.members.fetch(id)
+            userMap[id] = `<@${member.user.username}>`
+        } catch {
+            userMap[id] = "<@usuario-desconocido>"
+        }
+    }
+    return input.replace(mentionRegex, (_, id) => userMap[id] || `<@${id}>`)
+}
+
+export async function replaceUsernamesWithMentions(input: string,guild: Guild): Promise<string>
+{
+    const usernameRegex = /@([a-zA-Z0-9_\.]+)/g
+    const matches = [...input.matchAll(usernameRegex)]
+  
+    const uniqueUsernames = [...new Set(matches.map(match => match[1]))]
+    const userMap: Record<string, string> = {}
+  
+    const members = await guild.members.fetch()
+  
+    for (const username of uniqueUsernames) {
+      const member = members.find(m =>
+        m.user.username === username
+      );
+      if (member) {
+        userMap[username] = `@${member.id}`
+      } else {
+        userMap[username] = `@${username}`
+      }
+    }
+  
+    return input.replace(usernameRegex, (_, username) => userMap[username] || `@${username}`)
+  }
