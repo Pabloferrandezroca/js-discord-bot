@@ -6,6 +6,7 @@
         "moduleResolution": "node",
         "outDir": "./dist",
         "rootDir": "./src",
+        "baseUrl": "./src",
         "strict": false,
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
@@ -15,9 +16,9 @@
         "allowSyntheticDefaultImports": true,
         "noEmit": true,
         "allowImportingTsExtensions": true,
-        "baseUrl": "app/javascript",
-        "verbatimModuleSyntax": true
+        "verbatimModuleSyntax": false // para eliminar imports vacíos
     },
+    
     "include": ["src"],
     "exclude": ["dist", "node_modules"]
 }

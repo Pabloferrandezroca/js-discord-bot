@@ -32,7 +32,16 @@ Bot.client.on(Events.MessageCreate, async message => {
     }
     if(message.channel.id === Configuration.helpIAChannel.id){
       await message.channel.sendTyping()
-      let respuesta = await generarMensajeHuerfano(message.content, 'eres una inteligencia artificial diseñada para resolver dudas de los usuarios de facturascripts, tus respuestas no pueden superar los 2000 caracteres')
+      let respuesta = await generarMensajeHuerfano(
+        message.content, 
+        `
+        Eres un inteligencia artificial experta en resolver dudas sobre programación y más concretamente FacturaScripts. Responde de forma directa, breve y precisa, como si ya estuvieras en medio de una conversación. No saludes ni te extiendas innecesariamente.
+
+        Si según tu criterio la respuesta requiere una explicación larga o varios pasos, sugiere al usuario ejecutar el comando \`/help chatbot start\` para iniciar una conversación más detallada.
+
+        Tu respuesta no debe superar los 2000 caracteres. Si es posible, responde en una sola frase o directamente con el dato solicitado.
+        `
+      )
       message.reply({ content: respuesta })
     }else{
       if(message.channel.type == ChannelType.PublicThread || message.channel.type == ChannelType.PrivateThread){

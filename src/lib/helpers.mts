@@ -126,3 +126,30 @@ export async function replaceUsernamesWithMentions(input: string,guild: Guild): 
   
     return input.replace(usernameRegex, (_, username) => userMap[username] || `@${username}`)
   }
+
+  export function splitFromJumpLines(text: string, maxLength: number): string[] {
+    if (text.length <= maxLength) return [text]
+  
+    const secciones: string[] = []
+  
+    let restante = text
+  
+    while (restante.length > maxLength) {
+      // Tomamos los primeros 2000 caracteres
+      const fragmento = restante.slice(0, maxLength)
+      const ultimoSalto = fragmento.lastIndexOf('\n')
+  
+      // Si hay un salto de línea dentro del fragmento
+      const puntoCorte = ultimoSalto !== -1 ? ultimoSalto + 1 : maxLength
+  
+      secciones.push(restante.slice(0, puntoCorte))
+      restante = restante.slice(puntoCorte)
+    }
+  
+    // Agregamos lo que queda (menos de 2000 caracteres)
+    if (restante.length > 0) {
+      secciones.push(restante)
+    }
+  
+    return secciones
+  }
