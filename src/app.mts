@@ -8,7 +8,7 @@ import { welcome } from './res/embedMessages.mts'
 import { Log } from './class/Log.mts'
 import { Configuration } from './class/Configuration.mts'
 import { generarMensajeHuerfano } from './lib/gemini.mts'
-import { wait } from './lib/helpers.mts'
+import { splitFromJumpLines, wait } from './lib/helpers.mts'
 
 Bot.client.on(Events.GuildMemberAdd, async member => {
   if (Configuration.welcomeChannelID === undefined) {
@@ -32,17 +32,22 @@ Bot.client.on(Events.MessageCreate, async message => {
     }
     if(message.channel.id === Configuration.helpIAChannel.id){
       await message.channel.sendTyping()
-      let respuesta = await generarMensajeHuerfano(
+      let aiResp = await generarMensajeHuerfano(
         message.content, 
         `
         Eres un inteligencia artificial experta en resolver dudas sobre programación y más concretamente FacturaScripts. Responde de forma directa, breve y precisa, como si ya estuvieras en medio de una conversación. No saludes ni te extiendas innecesariamente.
 
-        Si según tu criterio la respuesta requiere una explicación larga o varios pasos, sugiere al usuario ejecutar el comando \`/help chatbot start\` para iniciar una conversación más detallada.
+        Si según tu criterio la respuesta requiere una explicación larga o varios pasos, sugiere al usuario ejecutar el comando \`/help chatbot start\` para iniciar una conversación más detallada pero también responde a la pregunta que te ha hecho.
 
-        Tu respuesta no debe superar los 2000 caracteres. Si es posible, responde en una sola frase o directamente con el dato solicitado.
+        Tu respuesta no debe superar los 2000 caracteres. Si es posible, responde en una sola frase o directamente con el dato solicitado solo si no requiere de explicación.
         `
       )
-      message.reply({ content: respuesta })
+      let sepparatedMessages = splitFromJumpLines(aiResp, 2000)
+      let last = message
+      for (const mensaje of sepparatedMessages) {
+        last = await last.reply({ content: mensaje })
+      }
+
     }else{
       if(message.channel.type == ChannelType.PublicThread || message.channel.type == ChannelType.PrivateThread){
         return

@@ -142,7 +142,14 @@ export async function replaceUsernamesWithMentions(input: string,guild: Guild): 
       // Si hay un salto de línea dentro del fragmento
       const puntoCorte = ultimoSalto !== -1 ? ultimoSalto + 1 : maxLength
   
-      secciones.push(restante.slice(0, puntoCorte))
+      let fraseSaltoLinea = restante.slice(0, puntoCorte)
+      if (fraseSaltoLinea.endsWith('\n')) {
+        fraseSaltoLinea = fraseSaltoLinea.slice(0, -1);
+      }
+      if (fraseSaltoLinea.startsWith('\n')) {
+        fraseSaltoLinea = fraseSaltoLinea.slice(1);
+      }
+      secciones.push(fraseSaltoLinea)
       restante = restante.slice(puntoCorte)
     }
   

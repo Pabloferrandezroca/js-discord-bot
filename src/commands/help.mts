@@ -3,7 +3,7 @@ import { User } from "../class/User.mts";
 import { Configuration } from "../class/Configuration.mts";
 import { Log } from "../class/Log.mts";
 import { Bot } from "../class/Bot.mts";
-import { replaceMentionsWithUsernames, replaceUsernamesWithMentions } from "../lib/helpers.mts";
+import { replaceMentionsWithUsernames, replaceUsernamesWithMentions, splitFromJumpLines } from "../lib/helpers.mts";
 
 const helpCommand = new SlashCommandBuilder()
   .setName('help')
@@ -100,27 +100,34 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
 
       let usermsg = await replaceMentionsWithUsernames(userResponse.content, userResponse.guild)
       //userResponse.content.replaceAll(`<@${Bot.client.user.id}>`, `<@${Bot.client.user.username}>`)
-      Log.warn(usermsg)
       let generatedMessage = await user.sendMessage(`[User:${userResponse.author.username}]:` + usermsg)
       generatedMessage = await replaceUsernamesWithMentions(generatedMessage, userResponse.guild)
-      Log.info(generatedMessage)
-      if(generatedMessage.length > 2000){
-        Log.warn('pilla mas de 2000')
-        generatedMessage = generatedMessage.substring(0, 2000)
-      }
+      // Log.info(generatedMessage)
+      // if(generatedMessage.length > 2000){
+      //   Log.warn('pilla mas de 2000')
+      //   generatedMessage = generatedMessage.substring(0, 2000)
+      // }
 
       if(generatedMessage.includes('$$END_CHAT$$')) {
         let msg = generatedMessage.replace('$$END_CHAT$$', '').trimEnd()
         if(msg.trim() !== ""){
-          user.lastIAMessage = await userResponse.reply({content: msg})
+          let sepparatedMessages = splitFromJumpLines(msg, 2000)
+          let last = userResponse
+          for (const mensaje of sepparatedMessages) {
+            last = await last.reply({content: mensaje})
+          }
+          user.lastIAMessage = last
         }
         await user.lastIAMessage.reply('- **Se ha cerrado la conversación (dada por finalizada)**')
         user.endChat()
         return
       }else{
-        user.lastIAMessage = await userResponse.reply({
-        content: generatedMessage
-      })
+        let sepparatedMessages = splitFromJumpLines(generatedMessage, 2000)
+        let last = userResponse
+        for (const mensaje of sepparatedMessages) {
+          last = await last.reply({content: mensaje})
+        }
+        user.lastIAMessage = last
       }
 
       

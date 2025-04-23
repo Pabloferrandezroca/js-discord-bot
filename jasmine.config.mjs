@@ -92,3 +92,7 @@ if (result.overallStatus === 'passed') {
 }
 
 console.log('\n==> Cadena de testeo finalizada\n'.green)
+
+if (result.overallStatus !== 'passed') {
+  process.exit(1)
+}
