@@ -27,7 +27,8 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers]
+    GatewayIntentBits.GuildMembers
+  ]
 })
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN)
@@ -72,10 +73,7 @@ if(!fileExists(APP_DATA_PATH)){
   await writeJsonFile(APP_DATA_PATH, {})
   Log.success(`Datos de aplicación creados en: ${APP_DATA_PATH}`, 1)
 }else{
-  const data = await readJsonFile(APP_DATA_PATH) as {[key: string]: string|number}
-  for (let prop in data) {
-    AppData[prop] = data[prop]
-  }
+  await AppData.loadData()
   Log.success(`Datos de aplicación cargados en: ${APP_DATA_PATH}`, 1)
 }
 
