@@ -1,11 +1,15 @@
 import 'dotenv/config'
-import { Chat, GoogleGenAI } from '@google/genai'
-import { Bot } from '../class/Bot.mts';
+import { CachedContent, Caches, Chat, File, GoogleGenAI } from '@google/genai'
+import { Bot } from '../class/Bot.mts'
 
 const genAI = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY })
+let updatingCache = false
+let documentationCache: Promise<any>
 
-export function crearChat(username: string) : Chat
+export async function crearChat(username: string) : Promise<Chat>
 {
+  await checkCache()
+
   const SYSTEM_PROMPT = `
   Eres un miembro veterano en un servidor de Discord dedicado a Facturascripts, un ERP libre desarrollado en PHP moderno y Bootstrap 4. Tienes conocimientos avanzados sobre el software y sabes participar en conversaciones técnicas de manera natural y útil. No eres un asistente ni un bot visible: eres uno más del grupo.
 
@@ -25,11 +29,10 @@ export function crearChat(username: string) : Chat
   - Usa <@nombre_usuario> si mencionas a alguien, pero hazlo solo cuando sea necesario y útil.
 
   Recuerda: estás en un entorno con múltiples personas, y tu rol no es ser protagonista, sino aportar valor **solo cuando sea relevante**.
-
   `
 
   const chat = genAI.chats.create({
-    model: "gemini-2.0-flash-lite",
+    model: "gemini-2.0-flash",
     history: [
       {
         role: 'user',
@@ -42,17 +45,19 @@ export function crearChat(username: string) : Chat
     ],
     config: {
       systemInstruction: SYSTEM_PROMPT,
-      maxOutputTokens: 1_000_000, // 0.08 centimos cada 1.000.000 de token gemini-2.0-flash-lite y gasta 8.000 tokens aprox con cada respuesta como máximo
+      maxOutputTokens: 1_000_000, // 0.10$ cada 1.000.000 de token de entrada gemini-2.0-flash y 0.40$ por cada 1.000.000 en salida max 8.000 salida
       //stopSequences: ['$$END_CHAT$$']
     }
     
-  });
+  })
 
-  return chat;
+  return chat
 }
 
 export async function enviarMensaje(chat: Chat, mensaje: string): Promise<string>
 {
+  await checkCache()
+
   try {
     let response = await chat.sendMessage({ message: mensaje })
 
@@ -65,6 +70,8 @@ export async function enviarMensaje(chat: Chat, mensaje: string): Promise<string
 
 export async function generarMensajeHuerfano(message: string, systemPrompt: string) : Promise<string>
 {
+  await checkCache()
+  
   try {
     let result = await genAI.models.generateContent({
       model: "gemini-2.0-flash-lite",
@@ -82,3 +89,53 @@ export async function generarMensajeHuerfano(message: string, systemPrompt: stri
 }
 
 
+async function fetchAllFiles(): Promise<File[]> {
+  let allFiles: File[] = []
+
+  let pager = await genAI.files.list({ config: { pageSize: 100 } })
+  let page = pager.page
+  while (true) {
+    for (const c of page) {
+      allFiles.push(c)
+    }
+    if (!pager.hasNextPage()) break
+    page = await pager.nextPage()
+  }
+
+  return allFiles
+}
+
+async function fetchAllCachedContent(): Promise<CachedContent[]> {
+  let allCaches: CachedContent[] = []
+
+  let pager = await genAI.caches.list({ config: { pageSize: 1000 } })
+  let page = pager.page
+  while (true) {
+    for (const c of page) {
+      allCaches.push(c)
+    }
+    if (!pager.hasNextPage()) break
+    page = await pager.nextPage()
+  }
+
+  return allCaches
+}
+
+async function deleteAllCachesAndFiles(): Promise<void> {
+  let caches = await fetchAllCachedContent()
+  let files = await fetchAllFiles()
+
+  for (const cache of caches) {
+    await genAI.caches.delete({ name: cache.name })
+  }
+
+  for (const cache of files) {
+    await genAI.files.delete({ name: cache.name })
+  }
+}
+
+async function checkCache(): Promise<void> {
+  if (updatingCache) {
+    await documentationCache
+  }
+}
