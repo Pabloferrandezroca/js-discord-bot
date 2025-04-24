@@ -9,6 +9,7 @@ import { Log } from './class/Log.mts'
 import { Configuration } from './class/Configuration.mts'
 import { generarMensajeHuerfano } from './lib/gemini.mts'
 import { wait } from './lib/helpers.mts'
+import { obtenerDoc } from './class/Docsloader.mts'
 
 Bot.client.on(Events.GuildMemberAdd, async member => {
   if (Configuration.welcomeChannelID === undefined) {
