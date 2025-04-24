@@ -7,13 +7,15 @@ import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mt
 import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fileURLToPath } from 'url'
 import path from 'path'
-import { fetchTextChannel, generateSecurityCode, notifyDeleteSlashCommands, notifySlashCommands } from '../lib/helpers.mts'
-import { generarMensajeHuerfano } from '../lib/gemini.mts'
+import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
+import { AppData } from './Appdata.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const __data = __dirname.endsWith('class') ? path.join(__dirname, '..', 'data') : path.join(__dirname, 'data')
 
-const CONFIG_PATH = __dirname.endsWith('class') ? path.join(__dirname, '..', 'data', 'config.json') : path.join(__dirname, 'data', 'config.json')
+const CONFIG_PATH = path.join(__data, 'config.json')
+const APP_DATA_PATH = path.join(__data, 'appData.json')
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
@@ -41,13 +43,9 @@ Log.success(`Sesión iniciada como ${client.user.tag}`, 1)
 
 Log.info('Cargando Configuración')
 Configuration.CONFIG_PATH = CONFIG_PATH
-if(!fileExists(CONFIG_PATH)){
-  writeJsonFile(CONFIG_PATH, {})
-}
-
 if(!await fileExists(CONFIG_PATH)){
-    await Configuration.save()
-    Log.success(`Configuración creada en: ${CONFIG_PATH}`, 1)
+  await writeJsonFile(CONFIG_PATH, {})
+  Log.success(`Configuración creada en: ${CONFIG_PATH}`, 1)
 }else{
   const data = await readJsonFile(CONFIG_PATH) as {[key: string]: string|number}
   for (let prop in data) {
@@ -56,7 +54,7 @@ if(!await fileExists(CONFIG_PATH)){
     }else{
         Configuration[prop] = data[prop]
     }
-  
+
   }
   Log.success(`Configuración cargada en: ${CONFIG_PATH}`, 1)
 }
@@ -64,6 +62,26 @@ if(!await fileExists(CONFIG_PATH)){
 Log.info('Revisando configuración')
 Configuration.getProperties().forEach(prop => {
   if(Configuration[prop] === undefined){
+    Log.warn(`[${prop}] sin valor, agregalo usando el comando set por favor.`, 1)
+  }
+})
+
+Log.info('Cargando datos de la aplicación')
+AppData.APP_DATA_PATH = APP_DATA_PATH
+if(!fileExists(APP_DATA_PATH)){
+  await writeJsonFile(APP_DATA_PATH, {})
+  Log.success(`Datos de aplicación creados en: ${APP_DATA_PATH}`, 1)
+}else{
+  const data = await readJsonFile(APP_DATA_PATH) as {[key: string]: string|number}
+  for (let prop in data) {
+    AppData[prop] = data[prop]
+  }
+  Log.success(`Datos de aplicación cargados en: ${APP_DATA_PATH}`, 1)
+}
+
+Log.info('Revisando datos de aplicación')
+AppData.getProperties().forEach(prop => {
+  if(AppData[prop] === undefined){
     Log.warn(`[${prop}] sin valor, agregalo usando el comando set por favor.`, 1)
   }
 })

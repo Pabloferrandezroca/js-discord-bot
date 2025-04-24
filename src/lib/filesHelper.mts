@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs, writeFileSync } from 'fs';
 import path from "path";
 
 // Verifica si el archivo existe
@@ -42,5 +42,5 @@ export async function writeJsonFile<T>(filePath: string, data: T): Promise<void>
 {
     await createFolderIfNotExists(filePath)
     const json = JSON.stringify(data, null, 2);
-    await fs.writeFile(filePath, json, 'utf-8');
+    writeFileSync(filePath, json, 'utf-8');
 }

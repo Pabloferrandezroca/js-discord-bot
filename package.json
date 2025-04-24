@@ -27,6 +27,7 @@
     "test-noCheck": "npm run esbuild:dev && npm run jasmine:test",
     "dev": "npm run test && npm run node:app",
     "dev-noCheck": "npm run esbuild:dev && npm run jasmine:test && npm run node:app",
+    "dev-noTest-noCheck": "npm run esbuild:dev && npm run node:app",
     "clean": "npm run esbuild:clean"
   },
   "dependencies": {
