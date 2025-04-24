@@ -1,8 +1,8 @@
 import 'dotenv/config'
 import { CachedContent, Chat, createPartFromUri, createUserContent, File, GoogleGenAI } from '@google/genai'
-import { obtenerDoc } from 'class/Docsloader.mts'
-import { AppData } from 'class/Appdata.mts'
-import { Log } from 'class/Log.mts'
+import { AppData } from '../class/Appdata.mts'
+import { Log } from '../class/Log.mts'
+import path from 'path'
 
 const genAI = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY })
 
@@ -31,11 +31,19 @@ export async function crearChat(username: string, botUsername: string): Promise<
   - Usa <@nombre_usuario> si mencionas a alguien, pero hazlo solo cuando sea necesario y útil.
 
   Recuerda: estás en un entorno con múltiples personas, y tu rol no es ser protagonista, sino aportar valor **solo cuando sea relevante**.
-  `
+  `.trim()
 
   const chat = genAI.chats.create({
     model: MODEL_NAME,
     history: [
+      {
+        role: 'user',
+        parts: [{ text: SYSTEM_PROMPT}]
+      },
+      {
+        role: 'model',
+        parts: [{ text: 'Ok'}]
+      },
       {
         role: 'user',
         parts: [{ text: 'Hola, necesito ayuda' }],
@@ -46,7 +54,7 @@ export async function crearChat(username: string, botUsername: string): Promise<
       },
     ],
     config: {
-      systemInstruction: SYSTEM_PROMPT,
+      // systemInstruction: SYSTEM_PROMPT,
       maxOutputTokens: 1_000_000, // 0.10$ cada 1.000.000 de token de entrada gemini-2.0-flash y 0.40$ por cada 1.000.000 en salida max 8.000 salida
       //stopSequences: ['$$END_CHAT$$']
       cachedContent: AppData.fs_doc_info.cacheName,
@@ -72,18 +80,18 @@ export async function enviarMensaje(chat: Chat, mensaje: string): Promise<string
 
 export async function generarMensajeHuerfano(message: string, systemPrompt: string): Promise<string> {
   await checkCache()
-
+  
   try {
-    let result = await genAI.models.generateContent({
+    let response = await genAI.models.generateContent({
       model: MODEL_NAME,
-      contents: message,
+      contents: systemPrompt + '\n Mensaje del usuario: '+ message,
       config: {
-        systemInstruction: systemPrompt,
+        // systemInstruction: systemPrompt,
         cachedContent: AppData.fs_doc_info.cacheName
       }
     })
 
-    return await result.text
+    return response.text
   } catch (error) {
     console.error(error)
     return '[chatbot api error]$$END_CHAT$$'
@@ -144,21 +152,39 @@ async function updateCache(): Promise<void> {
   updatingCache = true
 
   fetchingCachePromise = new Promise<void>(async (res, err) => {
+
+    Log.warn('Actualizando cache de gemini')
     await deleteAllCachesAndFiles()
+    Log.info('Antigua caché y ficheros borrados', 1)
+    
+    //TODO: actualizar el fichero usando docsreader
 
     const doc = await genAI.files.upload({
       //TODO: agregar funcionalidad de pablo aquí (docsreader)
-      file: DATA_PATH,
+      //file: DATA_PATH,
+      file: path.join(path.dirname(AppData.APP_DATA_PATH), 'datos.json'),
       config: { mimeType: "text/plain" },
     })
+
+    Log.info('Nuevo fichero subido', 1)
+    // Log.warn(doc.name + " fichero añadido")
 
     const cache = await genAI.caches.create({
       model: MODEL_NAME,
       config: {
         contents: createUserContent(createPartFromUri(doc.uri, doc.mimeType)),
-        systemInstruction: "You are an expert analyzing transcripts.",
+        systemInstruction: `
+        Eres un miembro veterano en un servidor de Discord dedicado a Facturascripts, 
+        un ERP libre desarrollado en PHP moderno y Bootstrap 4. 
+        Tienes conocimientos avanzados sobre el software y sabes participar en conversaciones técnicas de manera natural y útil. 
+        No eres un asistente ni un bot visible: eres uno más del grupo. Tienes toda la documentación de facturascripts a tu disposición.
+        `.trim(),
       },
     })
+
+    Log.info('Nueva cache creada', 1)
+
+    // Log.warn(cache.name + " cache añadido")
 
     AppData.fs_doc_info = {
       cacheName: cache.name,
@@ -168,7 +194,7 @@ async function updateCache(): Promise<void> {
 
     await AppData.save()
 
-    Log.warn('Caché de gemini actualizada')
+    Log.success('Caché de gemini actualizada', 1)
 
     updatingCache = false
     res()
