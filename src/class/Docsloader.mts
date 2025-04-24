@@ -3,6 +3,10 @@ import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import fs, { existsSync } from 'fs';
 
+// TODO: convertir a una clase
+// TODO: mover las funciones de creación de archivos a lib/filesHelper (refactorizar)
+// TODO: asignar DOC_PATH en class/Bot.mts (cambiarle el nombre a FS_DOC_DATA_PATH o algo similar)
+// TODO: cuando se reciba el json con los datos convertir a un txt formateado correctamente que incluya solo datos esenciales como el contenido, la fecha y lo que se considere relevante.
 async function obtenerDoc() {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
