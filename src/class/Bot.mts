@@ -7,7 +7,7 @@ import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mt
 import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
 import { AppData } from './Appdata.mts'
-import { checkCache } from '../lib/gemini.mts'
+import { awaitCacheLoading, checkCache, isUpdatingCache } from '../lib/gemini.mts'
 import { APP_DATA_PATH, CONFIG_PATH } from '../paths.mts'
 
 
@@ -68,7 +68,7 @@ if(!fileExists(APP_DATA_PATH)){
   await AppData.loadData()
   Log.success(`Datos de aplicación cargados en: ${APP_DATA_PATH}`, 1)
 
-  await checkCache()
+  
 }
 
 Log.info('Cargando slash commands')
@@ -97,8 +97,19 @@ export class Bot {
   public static rest = rest
   public static slashCommands = slashCommands
   public static securityCode = generateSecurityCode(6)
+  public static isUpdatingCache(): boolean
+  {
+    return isUpdatingCache()
+  }
+  public static async awaitCacheLoading(): Promise<void>
+  {
+    await awaitCacheLoading()
+  }
 }
 
 Log.warn(`Código de seguridad para comandos sensibles: [${Bot.securityCode}]`)
 
 Log.success(`✅ Bot listo en ${(Math.floor(performance.now()) / 1000).toString().replace('.',',')}s`)
+
+//actualizar cache si ha caducado o no existe
+checkCache()

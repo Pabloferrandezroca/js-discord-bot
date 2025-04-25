@@ -112,16 +112,18 @@ export async function replaceUsernamesWithMentions(input: string,guild: Guild): 
     const userMap: Record<string, string> = {}
   
     const members = await guild.members.fetch()
-  
     for (const username of uniqueUsernames) {
-      const member = members.find(m =>
-        m.user.username === username
-      );
-      if (member) {
-        userMap[username] = `@${member.id}`
-      } else {
-        userMap[username] = `@${username}`
-      }
+        // Log.warn(username)
+        const member = members.find(member => {
+            // Log.warn(`${member.user.username} ${username}`, 1)
+            return member.user.username === username
+        })
+
+        if (member) {
+            userMap[username] = `@${member.id}`
+        } else {
+            userMap[username] = `@${username}`
+        }
     }
   
     return input.replace(usernameRegex, (_, username) => userMap[username] || `@${username}`)

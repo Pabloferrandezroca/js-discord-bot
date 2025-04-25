@@ -209,7 +209,20 @@ async function updateCache(): Promise<void> {
 let updatingCache = false
 let fetchingCachePromise: Promise<void>
 
-export async function checkCache(): Promise<void> {
+export function isUpdatingCache(): boolean
+{
+  return updatingCache
+}
+
+export async function awaitCacheLoading(): Promise<void>
+{
+  if (updatingCache) {
+    await fetchingCachePromise
+  }
+}
+
+export async function checkCache(): Promise<void>
+{
   if (updatingCache) {
     await fetchingCachePromise
     return

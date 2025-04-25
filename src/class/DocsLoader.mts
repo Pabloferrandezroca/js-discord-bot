@@ -23,8 +23,8 @@ export class DocsLoader {
         let data = JSON.parse(resp) as {[key:string]: any}[];
 
         let txtFileContents = 'Lista de publicaciones de facturascripts filtradas por las que son para programadores.\n'+
-        'El enlace de la documentación es https://facturascripts.com/publicaciones/{Link permanente}.\n'+
-        `Este fichero ha sido actualizado ${new Date}. Se actualiza todos los días, orientate en cuanto al tiempo a esa fecha.\n\n\n`;
+        //'El enlace de la documentación es https://facturascripts.com/publicaciones/{Link permanente}.\n'+ se confunde
+        `Este fichero ha sido actualizado ${new Date}. Se actualiza todos los días, orientate en cuanto al tiempo a esa\n\n\n`;
         data.forEach((element, index) => {
             if (element.fordevelopers === true || element.knowledge === true) {
                 txtFileContents += `- Publicación numero ${index}\n`+
