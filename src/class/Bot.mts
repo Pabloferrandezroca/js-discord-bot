@@ -4,11 +4,12 @@ import { Client, REST, GatewayIntentBits, Routes, Events } from 'discord.js'
 import { configType, Configuration } from './Configuration.mts'
 import { Log } from './Log.mts'
 import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mts'
-import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
+import { crearDoc, fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fileURLToPath } from 'url'
 import path from 'path'
 import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
 import { AppData } from './Appdata.mts'
+import { DocsLoader } from './Docsloader.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +17,8 @@ const __data = __dirname.endsWith('class') ? path.join(__dirname, '..', 'data') 
 
 const CONFIG_PATH = path.join(__data, 'config.json')
 const APP_DATA_PATH = path.join(__data, 'appData.json')
+const FS_DOC_DATA_PATH = path.join(__data, 'doc.json')
+const FS_DOC_DATA_PATH_TXT = path.join(__data, 'doc.txt')
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
@@ -65,6 +68,12 @@ Configuration.getProperties().forEach(prop => {
     Log.warn(`[${prop}] sin valor, agregalo usando el comando set por favor.`, 1)
   }
 })
+DocsLoader.FS_DOC_DATA_PATH_TXT = FS_DOC_DATA_PATH_TXT
+DocsLoader.FS_DOC_DATA_PATH = FS_DOC_DATA_PATH
+if(!await fileExists(FS_DOC_DATA_PATH)){
+  await crearDoc(FS_DOC_DATA_PATH, FS_DOC_DATA_PATH_TXT)
+  Log.success(`Documentaci0on guardada en: ${FS_DOC_DATA_PATH}`, 1)
+}
 
 Log.info('Cargando datos de la aplicación')
 AppData.APP_DATA_PATH = APP_DATA_PATH

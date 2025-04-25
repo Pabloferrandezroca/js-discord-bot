@@ -44,3 +44,42 @@ export async function writeJsonFile<T>(filePath: string, data: T): Promise<void>
     const json = JSON.stringify(data, null, 2);
     writeFileSync(filePath, json, 'utf-8');
 }
+
+export async function crearDoc(FS_DOC_DATA_PATH: string, FS_DOC_DATA_PATH_TXT: string) {
+    const url = 'https://facturascripts.com/api/3/publications?limit=90000&filter%5Bidproject%5D=1';
+    const token = process.env.FS_API_TOKEN;
+    await fetch(url, {
+        method: 'GET',
+        headers: {
+            'token': `${token}`
+        }
+    })
+        .then(async response => {
+            console.log('Respuesta de la API:');
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status}`);
+            }
+            const totalCount = response.headers.get('X-Total-Count');
+            console.log('Total de publicaciones:', totalCount);
+            let resp = await response.text();
+            resp = JSON.parse(resp);
+            fs.writeFile(FS_DOC_DATA_PATH, JSON.stringify(resp, null, 2))
+                .then(async () => {
+                    const file = fs.readFile(FS_DOC_DATA_PATH, 'utf-8');
+                    const data = JSON.parse(await file);
+                    let string = '';
+                    data.forEach(element => {
+                        if(element.fordevelopers === true || element.knowledge === true){
+                            string = string + element.body + '\n';                      
+                        }
+                    });
+                    fs.writeFile(FS_DOC_DATA_PATH_TXT, string)
+                    return FS_DOC_DATA_PATH_TXT;
+                    
+                })
+                .catch((err: NodeJS.ErrnoException) => {
+                    console.error('Error al guardar el archivo JSON:', err);
+                }
+            );
+        })
+}

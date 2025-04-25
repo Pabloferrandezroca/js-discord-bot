@@ -54,7 +54,7 @@ class User {
     {
         if (!this.isInChat()) {
             this.status = Status.inChat
-            this.chat = crearChat(username)
+            this.chat = await crearChat(username)
         }
 
     }

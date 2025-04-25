@@ -9,7 +9,6 @@ import { Log } from './class/Log.mts'
 import { Configuration } from './class/Configuration.mts'
 import { generarMensajeHuerfano } from './lib/gemini.mts'
 import { splitFromJumpLines, wait } from './lib/helpers.mts'
-
 Bot.client.on(Events.GuildMemberAdd, async member => {
   if (Configuration.welcomeChannelID === undefined) {
     Log.warn('Canal de bienvenida no configurado bienvenida, añadelo usando el comando set')
@@ -23,7 +22,6 @@ Bot.client.on(Events.GuildMemberAdd, async member => {
     await Configuration.welcomeChannelID.send({ embeds: [welcome] })
   }
 })
-
 Bot.client.on(Events.MessageCreate, async message => {
   if(message.mentions.has(Bot.client.user) && message.author.id !== Bot.client.user.id){
     if (Configuration.helpIAChannel === undefined) {
