@@ -153,12 +153,13 @@ async function updateCache(): Promise<void> {
 
   fetchingCachePromise = new Promise<void>(async (res, err) => {
 
-    Log.warn('Actualizando cache de gemini')
+    Log.info('Borrando cache antiguo', 1)
     await deleteAllCachesAndFiles()
-    Log.info('Antigua caché y ficheros borrados', 1)
     
+    Log.info('Obteniendo documentación de fs', 1)
     //TODO: actualizar el fichero usando docsreader
 
+    Log.info('Subiendo fichero de documentación al chatbot', 1)
     const doc = await genAI.files.upload({
       //TODO: agregar funcionalidad de pablo aquí (docsreader)
       //file: DATA_PATH,
@@ -166,25 +167,28 @@ async function updateCache(): Promise<void> {
       config: { mimeType: "text/plain" },
     })
 
-    Log.info('Nuevo fichero subido', 1)
-    // Log.warn(doc.name + " fichero añadido")
-
-    const cache = await genAI.caches.create({
-      model: MODEL_NAME,
-      config: {
-        contents: createUserContent(createPartFromUri(doc.uri, doc.mimeType)),
-        systemInstruction: `
-        Eres un miembro veterano en un servidor de Discord dedicado a Facturascripts, 
-        un ERP libre desarrollado en PHP moderno y Bootstrap 4. 
-        Tienes conocimientos avanzados sobre el software y sabes participar en conversaciones técnicas de manera natural y útil. 
-        No eres un asistente ni un bot visible: eres uno más del grupo. Tienes toda la documentación de facturascripts a tu disposición.
-        `.trim(),
-      },
-    })
-
-    Log.info('Nueva cache creada', 1)
-
-    // Log.warn(cache.name + " cache añadido")
+    Log.info('Creando nuevo cache (puede tardar hasta 2 minutos)', 1)
+    let cache: CachedContent|null = undefined
+    do {
+      try {
+        cache = await genAI.caches.create({
+          model: MODEL_NAME,
+          config: {
+            contents: createUserContent(createPartFromUri(doc.uri, doc.mimeType)),
+            systemInstruction: `
+            Eres un miembro veterano en un servidor de Discord dedicado a Facturascripts, 
+            un ERP libre desarrollado en PHP moderno y Bootstrap 4. 
+            Tienes conocimientos avanzados sobre el software y sabes participar en conversaciones técnicas de manera natural y útil. 
+            No eres un asistente ni un bot visible: eres uno más del grupo. Tienes toda la documentación de facturascripts a tu disposición.
+            `.trim(),
+            ttl: (CACHE_TTL/1000 + 3600)+"s" //en segundos
+          },
+        })
+      } catch (e) {
+        console.error(e)
+        Log.error('Fallo! la api ha devuelto error, reintentando...', 1)
+      }
+    }while(cache === undefined)
 
     AppData.fs_doc_info = {
       cacheName: cache.name,
@@ -206,7 +210,7 @@ async function updateCache(): Promise<void> {
 let updatingCache = false
 let fetchingCachePromise: Promise<void>
 
-async function checkCache(): Promise<void> {
+export async function checkCache(): Promise<void> {
   if (updatingCache) {
     await fetchingCachePromise
     return
@@ -215,6 +219,7 @@ async function checkCache(): Promise<void> {
   const now = new Date
   let timeLapsed = now.getTime() - AppData.fs_doc_info.lastUpdate.getTime()
   if(AppData.fs_doc_info.cacheName === '' || timeLapsed > CACHE_TTL){
+    Log.info('Creando cache para el chatbot')
     await updateCache()
   }
 }

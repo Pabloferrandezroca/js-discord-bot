@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url'
 import path from 'path'
 import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
 import { AppData } from './Appdata.mts'
+import { checkCache } from '../lib/gemini.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,14 +76,9 @@ if(!fileExists(APP_DATA_PATH)){
 }else{
   await AppData.loadData()
   Log.success(`Datos de aplicación cargados en: ${APP_DATA_PATH}`, 1)
-}
 
-Log.info('Revisando datos de aplicación')
-AppData.getProperties().forEach(prop => {
-  if(AppData[prop] === undefined){
-    Log.warn(`[${prop}] sin valor, agregalo usando el comando set por favor.`, 1)
-  }
-})
+  await checkCache()
+}
 
 Log.info('Cargando slash commands')
 slashCommandsLoadTasks.forEach(async loadFunction => await loadFunction())

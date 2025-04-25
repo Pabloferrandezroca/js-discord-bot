@@ -7,6 +7,7 @@ export class AppData {
     public static fs_doc_info = {
         cacheName: '',
         fileName: '',
+        documentationPath: '',
         lastUpdate: new Date
     }
 
@@ -28,7 +29,8 @@ export class AppData {
                 this.fs_doc_info = {
                     cacheName: data[prop]['cacheName'],
                     fileName: data[prop]['fileName'],
-                    lastUpdate: new Date(data[prop]['lastUpdate'])
+                    documentationPath: data[prop]['documentationPath'],
+                    lastUpdate: new Date(data[prop]['lastUpdate']),
                 }
             } else {
                 AppData[prop] = data[prop]
