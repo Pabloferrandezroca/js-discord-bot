@@ -1,5 +1,6 @@
 import { writeJsonFile } from "../lib/filesHelper.mts"
 import { TextChannel } from "discord.js"
+import { CONFIG_PATH } from "../paths.mts"
 
 export enum configType {
     string,
@@ -10,8 +11,6 @@ export enum configType {
 type validValues = string|number|TextChannel
 
 export class Configuration {
-
-    public static CONFIG_PATH
 
     public static welcomeChannelID: TextChannel
     public static helpIAChannel: TextChannel
@@ -52,7 +51,7 @@ export class Configuration {
             }
         })
 
-        await writeJsonFile(this.CONFIG_PATH, content)
+        await writeJsonFile(CONFIG_PATH, content)
     }
 
     static set(property: string, value: validValues)

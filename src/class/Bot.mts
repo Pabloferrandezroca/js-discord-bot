@@ -5,18 +5,11 @@ import { configType, Configuration } from './Configuration.mts'
 import { Log } from './Log.mts'
 import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mts'
 import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
-import { fileURLToPath } from 'url'
-import path from 'path'
 import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
 import { AppData } from './Appdata.mts'
 import { checkCache } from '../lib/gemini.mts'
+import { APP_DATA_PATH, CONFIG_PATH } from '../paths.mts'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const __data = __dirname.endsWith('class') ? path.join(__dirname, '..', 'data') : path.join(__dirname, 'data')
-
-const CONFIG_PATH = path.join(__data, 'config.json')
-const APP_DATA_PATH = path.join(__data, 'appData.json')
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
@@ -42,9 +35,7 @@ await new Promise<void>(async (resolve, reject) => {
 })
 Log.success(`Sesión iniciada como ${client.user.tag}`, 1)
 
-
 Log.info('Cargando Configuración')
-Configuration.CONFIG_PATH = CONFIG_PATH
 if(!await fileExists(CONFIG_PATH)){
   await writeJsonFile(CONFIG_PATH, {})
   Log.success(`Configuración creada en: ${CONFIG_PATH}`, 1)
@@ -68,8 +59,8 @@ Configuration.getProperties().forEach(prop => {
   }
 })
 
+
 Log.info('Cargando datos de la aplicación')
-AppData.APP_DATA_PATH = APP_DATA_PATH
 if(!fileExists(APP_DATA_PATH)){
   await writeJsonFile(APP_DATA_PATH, {})
   Log.success(`Datos de aplicación creados en: ${APP_DATA_PATH}`, 1)

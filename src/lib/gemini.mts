@@ -2,7 +2,8 @@ import 'dotenv/config'
 import { CachedContent, Chat, createPartFromUri, createUserContent, File, GoogleGenAI } from '@google/genai'
 import { AppData } from '../class/Appdata.mts'
 import { Log } from '../class/Log.mts'
-import path from 'path'
+import { DocsLoader } from '../class/DocsLoader.mts'
+import { FS_DOC_DATA_PATH } from '../paths.mts'
 
 const genAI = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY })
 
@@ -157,17 +158,15 @@ async function updateCache(): Promise<void> {
     await deleteAllCachesAndFiles()
     
     Log.info('Obteniendo documentación de fs', 1)
-    //TODO: actualizar el fichero usando docsreader
+    await DocsLoader.saveFSData()
 
     Log.info('Subiendo fichero de documentación al chatbot', 1)
     const doc = await genAI.files.upload({
-      //TODO: agregar funcionalidad de pablo aquí (docsreader)
-      //file: DATA_PATH,
-      file: path.join(path.dirname(AppData.APP_DATA_PATH), 'datos.json'),
+      file: FS_DOC_DATA_PATH,
       config: { mimeType: "text/plain" },
     })
 
-    Log.info('Creando nuevo cache (puede tardar hasta 2 minutos)', 1)
+    Log.info('Creando nuevo cache (puede tardar bastante)', 1)
     let cache: CachedContent|null = undefined
     do {
       try {
@@ -219,7 +218,7 @@ export async function checkCache(): Promise<void> {
   const now = new Date
   let timeLapsed = now.getTime() - AppData.fs_doc_info.lastUpdate.getTime()
   if(AppData.fs_doc_info.cacheName === '' || timeLapsed > CACHE_TTL){
-    Log.info('Creando cache para el chatbot')
+    Log.info('Creando cache para el chatbot (puede tardar hasta 10 minutos)')
     await updateCache()
   }
 }

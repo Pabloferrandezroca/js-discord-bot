@@ -1,13 +1,11 @@
 import { readJsonFile, writeJsonFile } from "../lib/filesHelper.mts"
-
+import { APP_DATA_PATH } from "../paths.mts";
 
 export class AppData {
 
-    public static APP_DATA_PATH: string
     public static fs_doc_info = {
         cacheName: '',
         fileName: '',
-        documentationPath: '',
         lastUpdate: new Date
     }
 
@@ -23,13 +21,12 @@ export class AppData {
     }
 
     static async loadData(): Promise<void> {
-        const data = await readJsonFile(this.APP_DATA_PATH) as { [key: string]: string | number }
+        const data = await readJsonFile(APP_DATA_PATH) as { [key: string]: string | number }
         for (let prop in data) {
             if (prop == 'fs_doc_info' && data[prop]) {
                 this.fs_doc_info = {
                     cacheName: data[prop]['cacheName'],
                     fileName: data[prop]['fileName'],
-                    documentationPath: data[prop]['documentationPath'],
                     lastUpdate: new Date(data[prop]['lastUpdate']),
                 }
             } else {
@@ -46,6 +43,6 @@ export class AppData {
             content[prop] = this[prop]
         })
 
-        await writeJsonFile(this.APP_DATA_PATH, content)
+        await writeJsonFile(APP_DATA_PATH, content)
     }
 }
