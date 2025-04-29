@@ -9,3 +9,4 @@ export const __src = __dirname
 export const CONFIG_PATH = path.join(__data, 'config.json')
 export const APP_DATA_PATH = path.join(__data, 'appData.json')
 export const FS_DOC_DATA_PATH = path.join(__data, 'fs_doc_data.txt')
+export const DATABASE_PATH = path.join(__data, 'datos.db')

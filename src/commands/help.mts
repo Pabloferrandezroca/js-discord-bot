@@ -4,6 +4,7 @@ import { Configuration } from "../class/Configuration.mts";
 import { Log } from "../class/Log.mts";
 import { Bot } from "../class/Bot.mts";
 import { threadStillExists, replaceMentionsWithUsernames, replaceUsernamesWithMentions, splitFromJumpLines } from "../lib/helpers.mts";
+import { DatabaseManager } from "class/DatabaseManager.mts";
 
 const helpCommand = new SlashCommandBuilder()
   .setName('help')

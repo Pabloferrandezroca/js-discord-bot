@@ -8,8 +8,9 @@ import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
 import { AppData } from './Appdata.mts'
 import { awaitCacheLoading, checkCache, isUpdatingCache } from '../lib/gemini.mts'
-import { APP_DATA_PATH, CONFIG_PATH } from '../paths.mts'
-
+import { APP_DATA_PATH, CONFIG_PATH, DATABASE_PATH } from '../paths.mts'
+import { DatabaseManager } from './DatabaseManager.mts'
+import fs from 'fs'
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
@@ -91,6 +92,17 @@ await notifySlashCommands(rest, slashCommands)
   // console.log(err)
 })
 
+Log.info('Comprobando base de datos')
+if (!fs.existsSync(DATABASE_PATH)) {
+  Log.info('No encontrada, creando nueva', 1)
+  DatabaseManager.create()
+}else{
+  Log.info('Base de datos encontrada', 1)
+  DatabaseManager.start()
+}
+Log.success('Base de datos cargada', 1)
+
+console.log('La base de datos ya existe')
 
 export class Bot {
   public static client = client
