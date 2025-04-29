@@ -7,9 +7,11 @@ import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mt
 import { crearDoc, fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fileURLToPath } from 'url'
 import path from 'path'
+import fs from 'fs'
 import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
 import { AppData } from './Appdata.mts'
 import { DocsLoader } from './Docsloader.mts'
+import { Db } from './Db.mts'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -115,6 +117,12 @@ await notifySlashCommands(rest, slashCommands)
   // console.log(err)
 })
 
+if (!fs.existsSync('dist/data/datos.db')) {
+  Db.createDb()
+}
+else{
+  console.log('La base de datos ya existe')
+}
 
 export class Bot {
   public static client = client
