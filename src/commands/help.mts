@@ -81,11 +81,13 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
     autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
     reason: 'Hilo para ser asistido por asistente y no molestar en el canal principal.',
   })
+  DatabaseManager.addThread(thread.id)
 
   //await thread.members.add(user.getID())
   await interaction.deleteReply()
   let AIMessage = await thread.send(`Hola <@${user.getID()}>, ¿en que puedo ayudarte hoy?`)
   user.AIChat.lastIAMessage = AIMessage
+  DatabaseManager.addMessage(thread.id)
   while (user.isInChat()) {
     try {
       const collected = await thread.awaitMessages({

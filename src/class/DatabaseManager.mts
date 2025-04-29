@@ -28,7 +28,7 @@ export class DatabaseManager {
         this.db.serialize(() => {
             this.db.run(`CREATE TABLE IF NOT EXISTS messages (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_menssage BIGINT,
+                id_message BIGINT,
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )`, (err) => {
                 if (err) {
@@ -64,8 +64,8 @@ export class DatabaseManager {
         });
     }
 
-    static addMenssage(id_menssage: string) {
-        this.db.run(`INSERT INTO messages (id_menssage) VALUES (?)`, [id_menssage], function(err) {
+    static addMessage(id_message: string) {
+        this.db.run(`INSERT INTO messages (id_message) VALUES (?)`, [id_message], function(err) {
             if (err) {
                 console.error('Error al insertar en "messages":', err.message);
             }
@@ -88,8 +88,8 @@ export class DatabaseManager {
         });
     }
 
-    static deleteMessage(id_menssage: string) {
-        this.db.run(`DELETE FROM messages WHERE id_menssage = ?`, [id_menssage], function(err) {
+    static deleteMessage(id_message: string) {
+        this.db.run(`DELETE FROM messages WHERE id_message = ?`, [id_message], function(err) {
             if (err) {
                 console.error('Error al eliminar de "messages":', err.message);
             }
