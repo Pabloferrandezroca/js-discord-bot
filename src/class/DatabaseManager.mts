@@ -61,6 +61,18 @@ export class DatabaseManager {
                     // console.log('Tabla "interactions" creada');
                 }
             })
+            this.db.run(`CREATE TABLE IF NOT EXISTS chatbotStats(
+                discord_user_id BIGINT PRIMARY KEY,
+                chats_opened INTEGER,
+                mesajes_replied INTEGER,
+                char_length INTEGER
+                )`, (err) => {
+                if (err) {
+                    console.error('Error al crear la tabla:', err.message);
+                } else {
+                    // console.log('Tabla "chatbotStats" creada');
+                }
+            })
         });
     }
 
