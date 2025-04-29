@@ -92,14 +92,8 @@ await notifySlashCommands(rest, slashCommands)
   // console.log(err)
 })
 
-Log.info('Comprobando base de datos')
-if (!existsSync(DATABASE_PATH)) {
-  Log.info('No encontrada, creando nueva', 1)
-  DatabaseManager.create()
-}else{
-  Log.info('Base de datos encontrada', 1)
-  DatabaseManager.start()
-}
+Log.info('Cargando base de datos')
+DatabaseManager.create()
 Log.success('Base de datos cargada', 1)
 
 export class Bot {

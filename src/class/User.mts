@@ -2,6 +2,7 @@ import { Message, User as DiscordUser } from "discord.js"
 import { enviarMensaje, crearChat } from '../lib/gemini.mts';
 import { Bot } from "./Bot.mts";
 import type { Chat } from "@google/genai";
+import { ChatbotStats, DatabaseManager } from "./DatabaseManager.mts";
 
 export enum Status {
     idle,
@@ -22,6 +23,38 @@ interface AIChatType {
     chat: Chat|null
     lastIAMessage: Message|null,
     status: Status
+}
+
+async function getUserDB(user: User): Promise<ChatbotStats>
+{
+    let data = await DatabaseManager.getChatbotStats(user.getID())
+
+    if(data === null){
+        return {
+            discord_user_id: this.id,
+            chats_opened: 0,
+            mensajes_replied: 0,
+            char_length: 0
+        }
+    }else{
+        return data
+    }
+}
+
+async function addUserChatDB(user: User) {
+    
+    let data = await getUserDB(user)
+
+    data.chats_opened += 1
+    await DatabaseManager.setChatbotStats(data)
+}
+
+async function addUserMessageDB(user: User, message: string) {
+    let data = await getUserDB(user)
+
+    data.mensajes_replied += 1
+    data.char_length = message.length
+    await DatabaseManager.setChatbotStats(data)
 }
 
 class User {
@@ -64,12 +97,15 @@ class User {
         if (!this.isInChat()) {
             this.AIChat.status = Status.inChat
             this.AIChat.chat = await crearChat(username, Bot.client.user.username)
+            await addUserChatDB(this)
         }
     }
 
     public async sendMessage(message: string): Promise<string>
     {
-        return await enviarMensaje(this.AIChat.chat, message)
+        let response = await enviarMensaje(this.AIChat.chat, message)
+        await addUserMessageDB(this, response)
+        return response
     }
 
     public isInChat(): boolean
