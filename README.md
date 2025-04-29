@@ -2,8 +2,12 @@
 
 Este repositorio contiene el código fuente de un bot que contiene las siguientes funciones:
 
-- Configuración persistente
-- Comandos:
+- Está conectado a la api de una IA generativa de texto
+- Contacta con la api de facturascripts y recibe su documentación
+- Alimenta al chatbot de gemini con la documentación todos los días
+- Dispone de configuración persistente
+- Si mencionas al bot te responderá de manera abreviada
+- También tiene los siguientes comandos:
  - `view` muestra aspectos de la configuración y estadisticas del servidor
  - `set var` para modificar la configuración del bot
  - `ping` para comprobar que está activado el bot
@@ -11,7 +15,6 @@ Este repositorio contiene el código fuente de un bot que contiene las siguiente
  - `warn` para que le de un aviso a un usuario del servidor
  - `purge channel` borra todos los mensajes que se puedan borrar de un canal (requiere de verificación)
 - Dispone de un log para ver los mensajes con claridad en terminal
-- Está conectado a la api de una IA generativa de texto
 
 
 ### Instrucciones
@@ -31,4 +34,5 @@ Este repositorio contiene el código fuente de un bot que contiene las siguiente
 #### Cosas a saber
 
 - En la terminal hay información útil (por ejemplo un código para acciones sensibles)
-- La configuración de compilación actual no es optima para producción ya que está enfocada más a desarrollo. Para empaquetarlo habría que generar otro script de compilación.
+- Existe configuración de compilación para producción y para desarrollo.
+- **Importante**: Necesitarás una API KEY de facturascripts, gemini y la del bot para trabajar con él

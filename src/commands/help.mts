@@ -69,7 +69,7 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
     //Hola <@${user.getID()}>, ¿en que puedo ayudarte hoy?
     return
   }
-  user.startChat(interaction.user.displayName)
+  user.startChat(interaction.user.username)
 
   const thread = await AI_CHANNEL.threads.create({
     name: 'Asistente virtual',
@@ -96,17 +96,17 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
       }
       const userResponse = collected.first();
 
+      // en caso de estar actualizando el cache avisa al usuario.
+      if(Bot.isUpdatingCache()){
+        let response = await userResponse.reply(`<@${userResponse.author.id}> actualmente estoy actualizando mi conocimiento sobre la documentación de facturascripts, puedo tardar hasta 5-10 minutos. Te responderé en cuanto termine ||(borraré este mensaje cuando acabe)||.`)
+        await Bot.awaitCacheLoading()
+        await response.delete()
+      }
       await (userResponse.channel as TextChannel).sendTyping()
 
       let usermsg = await replaceMentionsWithUsernames(userResponse.content, userResponse.guild)
-      //userResponse.content.replaceAll(`<@${Bot.client.user.id}>`, `<@${Bot.client.user.username}>`)
-      let generatedMessage = await user.sendMessage(`[User:${userResponse.author.username}]:` + usermsg)
+      let generatedMessage = await user.sendMessage(`[Nombre de usuario: <@${userResponse.author.username}>]:` + usermsg)
       generatedMessage = await replaceUsernamesWithMentions(generatedMessage, userResponse.guild)
-      // Log.info(generatedMessage)
-      // if(generatedMessage.length > 2000){
-      //   Log.warn('pilla mas de 2000')
-      //   generatedMessage = generatedMessage.substring(0, 2000)
-      // }
 
       if(generatedMessage.includes('$$END_CHAT$$')) {
         let msg = generatedMessage.replace('$$END_CHAT$$', '').trimEnd()

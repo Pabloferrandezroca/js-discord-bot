@@ -7,13 +7,13 @@ import { Bot } from './class/Bot.mts'
 import { welcome } from './res/embedMessages.mts'
 import { Log } from './class/Log.mts'
 import { Configuration } from './class/Configuration.mts'
-import { generarMensajeHuerfano } from './lib/gemini.mts'
+import { checkCache, generarMensajeHuerfano } from './lib/gemini.mts'
 import { splitFromJumpLines, wait } from './lib/helpers.mts'
+
 Bot.client.on(Events.GuildMemberAdd, async member => {
   if (Configuration.welcomeChannelID === undefined) {
     Log.warn('Canal de bienvenida no configurado bienvenida, añadelo usando el comando set')
     return
-
   }
   else {
     welcome
@@ -22,16 +22,26 @@ Bot.client.on(Events.GuildMemberAdd, async member => {
     await Configuration.welcomeChannelID.send({ embeds: [welcome] })
   }
 })
+
 Bot.client.on(Events.MessageCreate, async message => {
   if(message.mentions.has(Bot.client.user) && message.author.id !== Bot.client.user.id){
     if (Configuration.helpIAChannel === undefined) {
       Log.warn('Canal de ayuda no configurado, añadelo usando el comando set')
       return
     }
+
     if(message.channel.id === Configuration.helpIAChannel.id){
+
+      // en caso de estar actualizando el cache avisa al usuario.
+      if(Bot.isUpdatingCache()){
+        let response = await message.reply(`<@${message.author.id}> actualmente estoy actualizando mi conocimiento sobre la documentación de facturascripts, puedo tardar hasta 5-10 minutos. Te responderé en cuanto termine ||(borraré este mensaje cuando acabe)||.`)
+        await Bot.awaitCacheLoading()
+        await response.delete()
+      }
+
       await message.channel.sendTyping()
       let aiResp = await generarMensajeHuerfano(
-        message.content, 
+        message.content,
         `
         Eres un inteligencia artificial experta en resolver dudas sobre programación y más concretamente FacturaScripts. Responde de forma directa, breve y precisa, como si ya estuvieras en medio de una conversación. No saludes ni te extiendas innecesariamente.
 

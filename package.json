@@ -22,6 +22,7 @@
     "check": "npm run tsc:check",
     "build": "npm run check && npm run esbuild:prod",
     "build-dev": "npm run check && npm run esbuild:dev",
+    "build-dev-noCheck": "npm run esbuild:dev",
     "test": "npm run build-dev && npm run jasmine:test",
     "test-noCheck": "npm run esbuild:dev && npm run jasmine:test",
     "dev": "npm run test && npm run node:app",

@@ -4,23 +4,13 @@ import { Client, REST, GatewayIntentBits, Routes, Events } from 'discord.js'
 import { configType, Configuration } from './Configuration.mts'
 import { Log } from './Log.mts'
 import { slashCommandsLoadTasks, slashCommands } from './../commands/commands.mts'
-import { crearDoc, fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
-import { fileURLToPath } from 'url'
-import path from 'path'
-import fs from 'fs'
+import { fileExists, readJsonFile, writeJsonFile } from '../lib/filesHelper.mts'
 import { fetchTextChannel, generateSecurityCode, notifySlashCommands } from '../lib/helpers.mts'
 import { AppData } from './Appdata.mts'
-import { DocsLoader } from './Docsloader.mts'
+import { awaitCacheLoading, checkCache, isUpdatingCache } from '../lib/gemini.mts'
+import { APP_DATA_PATH, CONFIG_PATH } from '../paths.mts'
 import { Db } from './Db.mts'
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const __data = __dirname.endsWith('class') ? path.join(__dirname, '..', 'data') : path.join(__dirname, 'data')
-
-const CONFIG_PATH = path.join(__data, 'config.json')
-const APP_DATA_PATH = path.join(__data, 'appData.json')
-const FS_DOC_DATA_PATH = path.join(__data, 'doc.json')
-const FS_DOC_DATA_PATH_TXT = path.join(__data, 'doc.txt')
+import fs from 'fs'
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
@@ -32,7 +22,8 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers]
+    GatewayIntentBits.GuildMembers
+  ]
 })
 
 const rest = new REST().setToken(process.env.DISCORD_TOKEN)
@@ -45,9 +36,7 @@ await new Promise<void>(async (resolve, reject) => {
 })
 Log.success(`Sesión iniciada como ${client.user.tag}`, 1)
 
-
 Log.info('Cargando Configuración')
-Configuration.CONFIG_PATH = CONFIG_PATH
 if(!await fileExists(CONFIG_PATH)){
   await writeJsonFile(CONFIG_PATH, {})
   Log.success(`Configuración creada en: ${CONFIG_PATH}`, 1)
@@ -70,32 +59,18 @@ Configuration.getProperties().forEach(prop => {
     Log.warn(`[${prop}] sin valor, agregalo usando el comando set por favor.`, 1)
   }
 })
-DocsLoader.FS_DOC_DATA_PATH_TXT = FS_DOC_DATA_PATH_TXT
-DocsLoader.FS_DOC_DATA_PATH = FS_DOC_DATA_PATH
-if(!await fileExists(FS_DOC_DATA_PATH)){
-  await crearDoc(FS_DOC_DATA_PATH, FS_DOC_DATA_PATH_TXT)
-  Log.success(`Documentaci0on guardada en: ${FS_DOC_DATA_PATH}`, 1)
-}
+
 
 Log.info('Cargando datos de la aplicación')
-AppData.APP_DATA_PATH = APP_DATA_PATH
 if(!fileExists(APP_DATA_PATH)){
   await writeJsonFile(APP_DATA_PATH, {})
   Log.success(`Datos de aplicación creados en: ${APP_DATA_PATH}`, 1)
 }else{
-  const data = await readJsonFile(APP_DATA_PATH) as {[key: string]: string|number}
-  for (let prop in data) {
-    AppData[prop] = data[prop]
-  }
+  await AppData.loadData()
   Log.success(`Datos de aplicación cargados en: ${APP_DATA_PATH}`, 1)
-}
 
-Log.info('Revisando datos de aplicación')
-AppData.getProperties().forEach(prop => {
-  if(AppData[prop] === undefined){
-    Log.warn(`[${prop}] sin valor, agregalo usando el comando set por favor.`, 1)
-  }
-})
+  
+}
 
 Log.info('Cargando slash commands')
 slashCommandsLoadTasks.forEach(async loadFunction => await loadFunction())
@@ -129,8 +104,19 @@ export class Bot {
   public static rest = rest
   public static slashCommands = slashCommands
   public static securityCode = generateSecurityCode(6)
+  public static isUpdatingCache(): boolean
+  {
+    return isUpdatingCache()
+  }
+  public static async awaitCacheLoading(): Promise<void>
+  {
+    await awaitCacheLoading()
+  }
 }
 
 Log.warn(`Código de seguridad para comandos sensibles: [${Bot.securityCode}]`)
 
 Log.success(`✅ Bot listo en ${(Math.floor(performance.now()) / 1000).toString().replace('.',',')}s`)
+
+//actualizar cache si ha caducado o no existe
+checkCache()
