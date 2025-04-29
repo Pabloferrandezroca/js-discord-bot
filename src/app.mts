@@ -60,9 +60,9 @@ Bot.client.on(Events.MessageCreate, async message => {
       if(message.channel.type == ChannelType.PublicThread || message.channel.type == ChannelType.PrivateThread){
         return
       }
-      let resp = await message.reply({ content: 'Solo me puedes mencionar en el canal ' + Configuration.helpIAChannel.name })
+      let resp = await message.reply({ content: `Solo te puedo responder en el canal <#${Configuration.helpIAChannel.id}>` })
       await wait(10);
-      resp.delete()
+      await resp.delete()
       return
     }
   }

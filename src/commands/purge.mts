@@ -23,6 +23,18 @@ const purgeCommand = new SlashCommandBuilder()
                 .setRequired(true)
         )
     )
+    .addSubcommandGroup(group => group
+        .setName('bot')
+        .setDescription('Para aspectos relacionados con el bot')
+        .addSubcommand(subcommand => subcommand
+            .setName('messages')
+            .setDescription('Para borrar los mensajes del bot')
+        )
+        .addSubcommand(subcommand => subcommand
+            .setName('threads')
+            .setDescription('Para borrar los threads del bot')
+        )
+    )
 
 async function purgeAction(interaction: ChatInputCommandInteraction) {
     if (interaction.options.getSubcommand() === 'channel') {

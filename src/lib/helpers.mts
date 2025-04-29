@@ -1,4 +1,4 @@
-import { ChannelType, Client, Guild, REST, Routes, TextChannel, type RepliableInteraction } from "discord.js";
+import { ChannelType, Client, Guild, REST, Routes, TextBasedChannel, TextChannel, ThreadChannel, type RepliableInteraction } from "discord.js";
 import { Log } from "../class/Log.mts";
 import { type CommandCoupleType } from "../commands/commands.mts";
 
@@ -161,4 +161,17 @@ export async function replaceUsernamesWithMentions(input: string,guild: Guild): 
     }
   
     return secciones
+  }
+
+// Suponiendo que tienes `channel` y `messageId`
+export async function threadStillExists(guild: Guild, channelId: string): Promise<boolean> {
+    try {
+      const channel = await guild.channels.fetch(channelId, {cache: false}) as ThreadChannel
+      return !channel.archived
+    } catch (error) {
+      if (error.code === 10003) { // Código "Unknown Channel"
+        return false;
+      }
+      throw error;
+    }
   }

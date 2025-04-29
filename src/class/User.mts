@@ -18,14 +18,23 @@ export enum Status {
 // }
 // return
 
+interface AIChatType {
+    chat: Chat|null
+    lastIAMessage: Message|null,
+    status: Status
+}
+
 class User {
     protected static users: {[key:string]: User} = {}
-
+    
     protected discordUser: DiscordUser
     protected id: string
-    protected chat: Chat|null
-    public lastIAMessage: Message|null
-    protected status = Status.idle
+
+    public AIChat: AIChatType = {
+        chat: null,
+        lastIAMessage: null,
+        status: Status.idle
+    }
 
     protected constructor(userID: string)
     {
@@ -53,26 +62,25 @@ class User {
     public async startChat(username: string)
     {
         if (!this.isInChat()) {
-            this.status = Status.inChat
-            this.chat = await crearChat(username, Bot.client.user.username)
+            this.AIChat.status = Status.inChat
+            this.AIChat.chat = await crearChat(username, Bot.client.user.username)
         }
-
     }
 
     public async sendMessage(message: string): Promise<string>
     {
-        return await enviarMensaje(this.chat, message);
+        return await enviarMensaje(this.AIChat.chat, message)
     }
 
     public isInChat(): boolean
     {
-        return this.status === Status.inChat
+        return this.AIChat.status === Status.inChat
     }
 
     public endChat(): void
     {
-        this.status = Status.idle
-        this.chat = undefined
+        this.AIChat.status = Status.idle
+        this.AIChat.chat = undefined
     }
 }
 
