@@ -5,6 +5,7 @@ import { viewCommand, viewAction } from './view.mts'
 import { helpCommand, helpAction } from './help.mts';
 import { warnCommand, warnAction } from './warn.mts'
 import { purgeCommand, purgeAction } from './purge.mts';
+import { deleteCommand, deleteAction } from './delete.mts';
 
 export type CommandCoupleType = {
     [x: string]: {
@@ -28,5 +29,6 @@ export const slashCommands: CommandCoupleType = {
     [viewCommand.name]: { command: viewCommand, action: viewAction},
     [helpCommand.name]: { command: helpCommand, action: helpAction},
     [warnCommand.name]: { command: warnCommand, action: warnAction},
-    [purgeCommand.name]: { command: purgeCommand, action: purgeAction}
+    [purgeCommand.name]: { command: purgeCommand, action: purgeAction},
+    [deleteCommand.name]: { command: deleteCommand, action: deleteAction}
 }
