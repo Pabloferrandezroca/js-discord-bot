@@ -9,6 +9,7 @@ import { Log } from './class/Log.mts'
 import { Configuration } from './class/Configuration.mts'
 import { checkCache, generarMensajeHuerfano } from './lib/gemini.mts'
 import { splitFromJumpLines, wait } from './lib/helpers.mts'
+import { DatabaseManager } from './class/DatabaseManager.mts'
 
 Bot.client.on(Events.GuildMemberAdd, async member => {
   if (Configuration.welcomeChannelID === undefined) {
@@ -18,8 +19,10 @@ Bot.client.on(Events.GuildMemberAdd, async member => {
   else {
     welcome
       .setTitle('Hola ' + member.user.displayName + ", Bienvendido a facturascripts!")
-    await Configuration.welcomeChannelID.send({ content: `<@${member.id}>` })
-    await Configuration.welcomeChannelID.send({ embeds: [welcome] })
+    let idMess = await Configuration.welcomeChannelID.send({ content: `<@${member.id}>` })
+    let idEmb = await Configuration.welcomeChannelID.send({ embeds: [welcome] })
+    DatabaseManager.addMessage(idMess.id)
+    DatabaseManager.addMessage(idEmb.id)
   }
 })
 
@@ -54,6 +57,7 @@ Bot.client.on(Events.MessageCreate, async message => {
       let last = message
       for (const mensaje of sepparatedMessages) {
         last = await last.reply({ content: mensaje })
+        DatabaseManager.addMessage(last.id)
       }
 
     }else{
@@ -61,8 +65,11 @@ Bot.client.on(Events.MessageCreate, async message => {
         return
       }
       let resp = await message.reply({ content: `Solo te puedo responder en el canal <#${Configuration.helpIAChannel.id}>` })
+      let id = resp.id
+      DatabaseManager.addMessage(id)
       await wait(10);
       await resp.delete()
+      DatabaseManager.deleteMessage(id)
       return
     }
   }

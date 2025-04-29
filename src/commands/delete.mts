@@ -1,5 +1,4 @@
 import { SlashCommandBuilder, PermissionFlagsBits, InteractionContextType, ChatInputCommandInteraction, MessageFlags, ChannelType, TextChannel } from 'discord.js'
-import { Bot } from '../class/Bot.mts'
 
 const deleteCommand = new SlashCommandBuilder()
     .setName('delete')

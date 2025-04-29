@@ -10,7 +10,7 @@ import { AppData } from './Appdata.mts'
 import { awaitCacheLoading, checkCache, isUpdatingCache } from '../lib/gemini.mts'
 import { APP_DATA_PATH, CONFIG_PATH, DATABASE_PATH } from '../paths.mts'
 import { DatabaseManager } from './DatabaseManager.mts'
-import fs from 'fs'
+import { existsSync } from 'fs'
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
@@ -93,7 +93,7 @@ await notifySlashCommands(rest, slashCommands)
 })
 
 Log.info('Comprobando base de datos')
-if (!fs.existsSync(DATABASE_PATH)) {
+if (!existsSync(DATABASE_PATH)) {
   Log.info('No encontrada, creando nueva', 1)
   DatabaseManager.create()
 }else{
@@ -101,8 +101,6 @@ if (!fs.existsSync(DATABASE_PATH)) {
   DatabaseManager.start()
 }
 Log.success('Base de datos cargada', 1)
-
-console.log('La base de datos ya existe')
 
 export class Bot {
   public static client = client

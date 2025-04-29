@@ -1,12 +1,13 @@
 import { ChatInputCommandInteraction, EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { Bot } from "../class/Bot.mts";
+import { DatabaseManager } from "../class/DatabaseManager.mts";
 
 const pingCommand = new SlashCommandBuilder()
 .setName('ping')
 .setDescription('Comprueba que funciona correctamente la interacción')
 
 
-let pingAction = (interaction: ChatInputCommandInteraction) => {
+let pingAction = async (interaction: ChatInputCommandInteraction) => {
     message.setFields(
         { name: 'Latencia:', value: `${Date.now() - interaction.createdTimestamp}ms` },
         { name: 'Latencia de API:', value: `${Math.round(Bot.client.ws.ping)}ms` },
@@ -19,7 +20,8 @@ let pingAction = (interaction: ChatInputCommandInteraction) => {
       )
     }
 
-    interaction.reply( { embeds: [message] })//, flags: MessageFlags.Ephemeral })
+    let replInter = await interaction.reply( { embeds: [message] })//, flags: MessageFlags.Ephemeral })
+    DatabaseManager.addInteraction(replInter.id)
 }
 
 let message = new EmbedBuilder()
