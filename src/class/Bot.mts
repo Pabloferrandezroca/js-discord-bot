@@ -11,6 +11,7 @@ import { awaitCacheLoading, checkCache, isUpdatingCache } from '../lib/gemini.mt
 import { APP_DATA_PATH, CONFIG_PATH, DATABASE_PATH } from '../paths.mts'
 import { DatabaseManager } from './DatabaseManager.mts'
 import fs from 'fs'
+import { DocsLoader } from './DocsLoader.mts'
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
