@@ -49,4 +49,38 @@ export class DocsLoader {
 
         writeFileSync(FS_DOC_DATA_PATH, txtFileContents)
     }
+
+    static async savePluginData(){
+        const url = 'https://facturascripts.com/PluginInfoList'
+
+        let response = await fetch(url, {
+            method: 'GET'
+        })
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status}`)
+        }
+        
+        let resp = await response.text();
+        let data = JSON.parse(resp) as {[key:string]: any}[];
+        let txtFileContents = 'Lista de plugins de facturascripts.\n'+
+        `Este fichero ha sido actualizado ${new Date}. Se actualiza todos los días, orientate en cuanto al tiempo a esa\n\n\n`;
+        data.forEach((element, index) => {
+            txtFileContents += `# ${element.name}\n`+
+            `- Descripcion: ${element.description}\n`+
+            `- city: ${element.city}\n`+
+            `- Precio: ${element.price}\n`+
+            `- url: ${element.url}\n`
+        }
+        );
+        let HTML_CHARS = ['<', '>', '"', "'"];
+        let HTML_REPLACEMENTS = ['&lt;', '&gt;', '&quot;', '&#39;'];
+
+        for (let i = 0; i < HTML_REPLACEMENTS.length; i++) {
+            txtFileContents = txtFileContents.replaceAll(HTML_REPLACEMENTS[i], HTML_CHARS[i]);
+        }
+        return txtFileContents
+    }
+
+    
 }
