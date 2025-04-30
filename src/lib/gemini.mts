@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { CachedContent, Chat, createPartFromUri, createUserContent, File, GoogleGenAI } from '@google/genai'
+import { CachedContent, Chat, ContentListUnion, createPartFromUri, createUserContent, File, GenerateContentResponse, GoogleGenAI, Type } from '@google/genai'
 import { AppData } from '../class/Appdata.mts'
 import { Log } from '../class/Log.mts'
 import { DocsLoader } from '../class/DocsLoader.mts'
@@ -9,6 +9,26 @@ const genAI = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY })
 
 const MODEL_NAME = 'gemini-2.0-flash'
 const CACHE_TTL = 1000 * 60 * 60 * 24 // ttl de 1 día en milisegundos
+
+const FUNCTION_DECLARATION_PROMPT = 
+`Y como extra, tienes disponibles las siguientes funciones para consultar:
+- fsPluginInfoList para ver información actualizada sobre los plugins de facturascripts.`
+
+const fsPluginInfoListFunctionDeclaration = {
+  name: 'fsPluginInfoList',
+  description: 'Para consultar la lista actualizada con la información de los plugins de facturascripts',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+    required: [],
+  },
+};
+
+function fsPluginInfoList() {
+  return {
+    info: '[[ error en la conexión de internet. ]]'
+  };
+}
 
 export async function crearChat(username: string, botUsername: string): Promise<Chat> {
   await checkCache()
@@ -59,6 +79,7 @@ export async function crearChat(username: string, botUsername: string): Promise<
       maxOutputTokens: 1_000_000, // 0.10$ cada 1.000.000 de token de entrada gemini-2.0-flash y 0.40$ por cada 1.000.000 en salida max 8.000 salida
       //stopSequences: ['$$END_CHAT$$']
       cachedContent: AppData.fs_doc_info.cacheName,
+      
     }
 
   })
@@ -72,6 +93,12 @@ export async function enviarMensaje(chat: Chat, mensaje: string): Promise<string
   try {
     let response = await chat.sendMessage({ message: mensaje })
 
+    do { 
+      
+      response = await executeFunctionCall(response, chat.getHistory())
+      
+    }while(response.functionCalls)
+
     return response.text
   } catch (error) {
     console.error(error)
@@ -83,20 +110,66 @@ export async function generarMensajeHuerfano(message: string, systemPrompt: stri
   await checkCache()
   
   try {
+    let contents: ContentListUnion = [
+      {
+        role: 'user',
+        parts: [{ text: systemPrompt + '\n Mensaje del usuario: '+ message }]
+      }
+    ]
+
     let response = await genAI.models.generateContent({
       model: MODEL_NAME,
-      contents: systemPrompt + '\n Mensaje del usuario: '+ message,
+      contents: contents,
       config: {
         // systemInstruction: systemPrompt,
-        cachedContent: AppData.fs_doc_info.cacheName
+        cachedContent: AppData.fs_doc_info.cacheName,
       }
     })
+
+    do { 
+      
+      response = await executeFunctionCall(response, contents)
+      
+    }while(response.functionCalls)
 
     return response.text
   } catch (error) {
     console.error(error)
-    return '[chatbot api error]$$END_CHAT$$'
+    return '[chatbot api error]'
   }
+}
+
+async function executeFunctionCall(response: GenerateContentResponse, contents: ContentListUnion): Promise<GenerateContentResponse>
+{
+  if(response.functionCalls){
+
+    let function_response_part = {
+      name: response.functionCalls[0].name,
+      response: {}
+    }
+
+    switch (response.functionCalls[0].name) {
+      case fsPluginInfoListFunctionDeclaration.name:
+        function_response_part.response = fsPluginInfoList()
+        break;
+    
+      default:
+        throw new Error(`No existe la función (${response.functionCalls[0].name}) pedida por la API de gemini`)
+    }
+    
+    (contents as ContentListUnion[]).push({ role: 'model', parts: [{ functionCall: response.functionCalls[0] }] });
+    (contents as ContentListUnion[]).push({ role: 'user', parts: [{ functionResponse: function_response_part }] });
+
+    response = await genAI.models.generateContent({
+      model: MODEL_NAME,
+      contents: contents,
+      config: {
+        cachedContent: AppData.fs_doc_info.cacheName,
+      }
+    })
+  }
+
+  return response
 }
 
 
@@ -179,8 +252,11 @@ async function updateCache(): Promise<void> {
             un ERP libre desarrollado en PHP moderno y Bootstrap 4. 
             Tienes conocimientos avanzados sobre el software y sabes participar en conversaciones técnicas de manera natural y útil. 
             No eres un asistente ni un bot visible: eres uno más del grupo. Tienes toda la documentación de facturascripts a tu disposición.
-            `.trim(),
-            ttl: (CACHE_TTL/1000 + 3600)+"s" //en segundos
+            ${FUNCTION_DECLARATION_PROMPT}`.trim(),
+            ttl: (CACHE_TTL/1000 + 3600)+"s", //en segundos
+            tools: [{
+              functionDeclarations: [fsPluginInfoListFunctionDeclaration]
+            }]
           },
         })
       } catch (e) {
