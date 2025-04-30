@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, InteractionContextType, ChatInputCommandInteraction, MessageFlags } from 'discord.js'
 import { Configuration } from '../class/Configuration.mts'
 import { Log } from '../class/Log.mts';
+import { DatabaseManager } from '../class/DatabaseManager.mts';
 
 const warnCommand = new SlashCommandBuilder()
     .setName('warn')
@@ -29,7 +30,8 @@ async function warnAction(interaction: ChatInputCommandInteraction) {
     else{
         let razon = interaction.options.getString('razon')
         let user = interaction.options.getUser('usuario')
-        await Configuration.warningChannelID.send({content: `<@${user.id}>`, embeds: [{title: 'Advertencia', description: razon}]})
+        let mess = await Configuration.warningChannelID.send({content: `<@${user.id}>`, embeds: [{title: 'Advertencia', description: razon}]})
+        DatabaseManager.addMessage(mess.id)
     }
     
 }
