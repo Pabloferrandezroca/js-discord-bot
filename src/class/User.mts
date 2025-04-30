@@ -31,7 +31,7 @@ async function getUserDB(user: User): Promise<ChatbotStats>
 
     if(data === null){
         return {
-            discord_user_id: this.id,
+            discord_user_id: user.getID(),
             chats_opened: 0,
             mensages_replied: 0,
             char_length: 0

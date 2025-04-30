@@ -50,7 +50,7 @@ export class DocsLoader {
         writeFileSync(FS_DOC_DATA_PATH, txtFileContents)
     }
 
-    static async savePluginData(){
+    static async getPluginData() {
         const url = 'https://facturascripts.com/PluginInfoList'
 
         let response = await fetch(url, {
@@ -60,7 +60,7 @@ export class DocsLoader {
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`)
         }
-        
+
         let resp = await response.text();
         let data = JSON.parse(resp) as {[key:string]: any}[];
         let txtFileContents = 'Lista de plugins de facturascripts.\n'+
@@ -78,7 +78,7 @@ export class DocsLoader {
         for (let i = 0; i < HTML_REPLACEMENTS.length; i++) {
             txtFileContents = txtFileContents.replaceAll(HTML_REPLACEMENTS[i], HTML_CHARS[i]);
         }
-        return txtFileContents
+        return {pluginInformation: txtFileContents}
     }
 
     static async getBuildList(){
