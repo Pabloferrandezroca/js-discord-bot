@@ -11,12 +11,13 @@ const MODEL_NAME = 'gemini-2.0-flash'
 const CACHE_TTL = 1000 * 60 * 60 * 24 // ttl de 1 día en milisegundos
 
 const FUNCTION_DECLARATION_PROMPT = 
-`Y como extra, tienes disponibles las siguientes funciones si necesitas consultar información:
-- fsPluginInfoList para ver información sobre los plugins de facturascripts, haz uso de ella cuando te haga falta.`
+`Finalmente tienes disponibles las siguientes herramientas (invisibles para el usuario, no se lo sugieras) para consultar información que desconoces:
+- fsPluginInfoList para ver una lista sobre los plugins de facturascripts y sus detalles individuales.
+- fsBuildInfoList para ver la información sobre las builds`
 
 const fsPluginInfoListFunctionDeclaration = {
   name: 'fsPluginInfoList',
-  description: 'Herramienta para consultar la lista con los detalles de los plugins de facturascripts en vivo (solo disponible para tí).',
+  description: 'Herramienta para consultar la lista con los detalles de los plugins de facturascripts en vivo.',
   parameters: {
     type: Type.OBJECT,
     properties: {},
