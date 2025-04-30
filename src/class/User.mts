@@ -33,7 +33,7 @@ async function getUserDB(user: User): Promise<ChatbotStats>
         return {
             discord_user_id: this.id,
             chats_opened: 0,
-            mensajes_replied: 0,
+            mensages_replied: 0,
             char_length: 0
         }
     }else{
@@ -52,7 +52,7 @@ async function addUserChatDB(user: User) {
 async function addUserMessageDB(user: User, message: string) {
     let data = await getUserDB(user)
 
-    data.mensajes_replied += 1
+    data.mensages_replied += 1
     data.char_length = message.length
     await DatabaseManager.setChatbotStats(data)
 }
