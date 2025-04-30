@@ -11,12 +11,12 @@ const MODEL_NAME = 'gemini-2.0-flash'
 const CACHE_TTL = 1000 * 60 * 60 * 24 // ttl de 1 día en milisegundos
 
 const FUNCTION_DECLARATION_PROMPT = 
-`Y como extra, tienes disponibles las siguientes funciones para consultar:
-- fsPluginInfoList para ver información actualizada sobre los plugins de facturascripts.`
+`Y como extra, tienes disponibles las siguientes funciones si necesitas consultar información:
+- fsPluginInfoList para ver información sobre los plugins de facturascripts, haz uso de ella cuando te haga falta.`
 
 const fsPluginInfoListFunctionDeclaration = {
   name: 'fsPluginInfoList',
-  description: 'Para consultar la lista actualizada con la información de los plugins de facturascripts',
+  description: 'Herramienta para consultar la lista con los detalles de los plugins de facturascripts en vivo (solo disponible para tí).',
   parameters: {
     type: Type.OBJECT,
     properties: {},
@@ -24,10 +24,8 @@ const fsPluginInfoListFunctionDeclaration = {
   },
 };
 
-function fsPluginInfoList() {
-  return {
-    info: '[[ error en la conexión de internet. ]]'
-  };
+async function fsPluginInfoList() {
+  return await DocsLoader.getPluginData()
 }
 
 export async function crearChat(username: string, botUsername: string): Promise<Chat> {
@@ -150,7 +148,7 @@ async function executeFunctionCall(response: GenerateContentResponse, contents: 
 
     switch (response.functionCalls[0].name) {
       case fsPluginInfoListFunctionDeclaration.name:
-        function_response_part.response = fsPluginInfoList()
+        function_response_part.response = await fsPluginInfoList()
         break;
     
       default:
