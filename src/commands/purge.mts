@@ -1,5 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, InteractionContextType, ChatInputCommandInteraction, MessageFlags, ChannelType, TextChannel } from 'discord.js'
 import { Bot } from '../class/Bot.mts'
+import { AppData } from '../class/Appdata.mts'
+import { checkCache } from '../lib/gemini.mts'
 
 const purgeCommand = new SlashCommandBuilder()
     .setName('purge')
@@ -35,8 +37,16 @@ const purgeCommand = new SlashCommandBuilder()
             .setDescription('Para borrar los threads del bot')
         )
     )
+    .addSubcommandGroup(group => group
+        .setName('chatbot')
+        .setDescription('Para aspectos relacionados con el chatbot')
+        .addSubcommand(subcommand => subcommand
+            .setName('cache')
+            .setDescription('Para borrar la cache del chatbot')
+        )
+    )
 
-async function purgeAction(interaction: ChatInputCommandInteraction) {
+async function channelGroup(interaction: ChatInputCommandInteraction) {
     if (interaction.options.getSubcommand() === 'channel') {
         let channel = interaction.options.getChannel('channel') as TextChannel
         let code = interaction.options.getString('code')
@@ -57,6 +67,29 @@ async function purgeAction(interaction: ChatInputCommandInteraction) {
             
             //await new Promise(resolve => setTimeout(resolve, 500))
           } while (deleted.size > 0);
+    }
+}
+
+async function chatbotGroup(interaction: ChatInputCommandInteraction) {
+    if (interaction.options.getSubcommand() === 'cache') {
+        await interaction.reply({content: '⏳ Actualizando cache (entre 10s y 10m)'})
+        AppData.fs_doc_info.lastUpdate.setDate(AppData.fs_doc_info.lastUpdate.getDate() - 1)
+        await AppData.save()
+        await checkCache()
+        await interaction.editReply({content: '🟢 Cache actualizada correctamente!'})
+    }
+}
+
+async function purgeAction(interaction: ChatInputCommandInteraction) {
+    switch (interaction.options.getSubcommandGroup()) {
+        case 'channel':
+            await channelGroup(interaction)
+            break;
+        case 'chatbot':
+            await chatbotGroup(interaction)
+            break;
+        default:
+            break;
     }
 }
 

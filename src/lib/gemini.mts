@@ -3,17 +3,26 @@ import { CachedContent, Chat, ContentListUnion, createPartFromUri, createUserCon
 import { AppData } from '../class/Appdata.mts'
 import { Log } from '../class/Log.mts'
 import { DocsLoader } from '../class/DocsLoader.mts'
-import { FS_DOC_DATA_PATH } from '../paths.mts'
+import { FS_DOC_DATA_PATH, SYSTEM_PROMPT_FILE_PATH } from '../paths.mts'
+import { readFileSync } from 'fs'
 
 const genAI = new GoogleGenAI({ apiKey: process.env.CHATBOT_API_KEY })
 
 const MODEL_NAME = 'gemini-2.0-flash'
 const CACHE_TTL = 1000 * 60 * 60 * 24 // ttl de 1 día en milisegundos
 
-const FUNCTION_DECLARATION_PROMPT = 
-`Finalmente tienes disponibles las siguientes herramientas (invisibles para el usuario, no se lo sugieras) para consultar información que desconoces:
-- fsPluginInfoList para ver una lista sobre los plugins de facturascripts y sus detalles individuales.
-- fsBuildInfoList para ver la información sobre las builds`
+// const FUNCTION_DECLARATION_PROMPT = 
+// `Tienes disponibles las siguientes herramientas, de uso exclusivo y sin conocimiento del usuario. Úsalas directamente cuando la situación lo requiera, sin hacer referencia a ellas ni insinuar su existencia al usuario:
+
+// - fsPluginInfoList: Consulta interna para obtener una lista de plugins de FacturaScripts y sus detalles individuales.
+// - fsBuildInfoList: Consulta interna para obtener una lista con las builds y versiones existentes en FacturaScripts.
+
+// Nunca pidas al usuario que use estas herramientas ni hagas mención de ellas. Tu objetivo es proporcionar respuestas completas y precisas directamente, utilizando estas funciones SIEMPRE que haga falta.
+// `
+
+// `Finalmente tienes disponibles las siguientes herramientas (invisibles para el usuario, no se lo sugieras) para consultar información que desconoces:
+// - fsPluginInfoList para ver una lista sobre los plugins de facturascripts y sus detalles individuales.
+// - fsBuildInfoList para ver la información sobre las builds existentes en facturascripts.`
 
 const fsPluginInfoListFunctionDeclaration = {
   name: 'fsPluginInfoList',
@@ -25,9 +34,24 @@ const fsPluginInfoListFunctionDeclaration = {
   },
 };
 
+const fsBuildInfoListFunctionDeclaration = {
+  name: 'fsBuildInfoList',
+  description: 'Herramienta para consultar la lista con las builds y versiones de facturascripts en vivo.',
+  parameters: {
+    type: Type.OBJECT,
+    properties: {},
+    required: [],
+  },
+};
+
 async function fsPluginInfoList() {
   return await DocsLoader.getPluginData()
 }
+
+async function fsBuildInfoList() {
+  Log.warn('ha usao la función el espabilao')
+  return await DocsLoader.getBuildList()
+}  
 
 export async function crearChat(username: string, botUsername: string): Promise<Chat> {
   await checkCache()
@@ -100,6 +124,9 @@ export async function enviarMensaje(chat: Chat, mensaje: string): Promise<string
 
     return response.text
   } catch (error) {
+    if(error.code === '503'){
+      return `[Chatbot status '${error.status}', reintenta más tarde. '${error.message}']$$END_CHAT$$`
+    }
     console.error(error)
     return '[chatbot api error]$$END_CHAT$$'
   }
@@ -133,6 +160,9 @@ export async function generarMensajeHuerfano(message: string, systemPrompt: stri
 
     return response.text
   } catch (error) {
+    if(error.code === '503'){
+      return `[Chatbot status '${error.status}', reintenta más tarde. '${error.message}']$$END_CHAT$$`
+    }
     console.error(error)
     return '[chatbot api error]'
   }
@@ -140,6 +170,7 @@ export async function generarMensajeHuerfano(message: string, systemPrompt: stri
 
 async function executeFunctionCall(response: GenerateContentResponse, contents: ContentListUnion): Promise<GenerateContentResponse>
 {
+  console.log(response.functionCalls)
   if(response.functionCalls){
 
     let function_response_part = {
@@ -151,7 +182,9 @@ async function executeFunctionCall(response: GenerateContentResponse, contents: 
       case fsPluginInfoListFunctionDeclaration.name:
         function_response_part.response = await fsPluginInfoList()
         break;
-    
+      case fsBuildInfoListFunctionDeclaration.name:
+        function_response_part.response = await fsBuildInfoList()
+        break;
       default:
         throw new Error(`No existe la función (${response.functionCalls[0].name}) pedida por la API de gemini`)
     }
@@ -246,15 +279,19 @@ async function updateCache(): Promise<void> {
           model: MODEL_NAME,
           config: {
             contents: createUserContent(createPartFromUri(doc.uri, doc.mimeType)),
-            systemInstruction: `
-            Eres un miembro veterano en un servidor de Discord dedicado a Facturascripts, 
-            un ERP libre desarrollado en PHP moderno y Bootstrap 4. 
-            Tienes conocimientos avanzados sobre el software y sabes participar en conversaciones técnicas de manera natural y útil. 
-            No eres un asistente ni un bot visible: eres uno más del grupo. Tienes toda la documentación de facturascripts a tu disposición.
-            ${FUNCTION_DECLARATION_PROMPT}`.trim(),
+            systemInstruction: readFileSync(SYSTEM_PROMPT_FILE_PATH, 'utf8'),
+            // systemInstruction: `
+            // Eres un miembro veterano en un servidor de Discord dedicado a Facturascripts, 
+            // un ERP libre desarrollado en PHP moderno y Bootstrap 4. 
+            // Tienes conocimientos avanzados sobre el software y sabes participar en conversaciones técnicas de manera natural y útil. 
+            // No eres un asistente ni un bot visible: eres uno más del grupo. Tienes toda la documentación de facturascripts a tu disposición.
+            // ${FUNCTION_DECLARATION_PROMPT}`.trim(),
             ttl: (CACHE_TTL/1000 + 3600)+"s", //en segundos
             tools: [{
-              functionDeclarations: [fsPluginInfoListFunctionDeclaration]
+              functionDeclarations: [
+                fsPluginInfoListFunctionDeclaration,
+                fsBuildInfoListFunctionDeclaration
+              ],
             }]
           },
         })
