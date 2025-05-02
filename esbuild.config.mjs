@@ -1,6 +1,7 @@
 import { existsSync, readdir, readdirSync, rmSync } from 'fs'
 import esbuild from 'esbuild'
 import { replace } from 'esbuild-plugin-replace'
+import { copy } from 'esbuild-plugin-copy'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import c from 'colors'
@@ -39,7 +40,7 @@ if (checkParam('--developing')) {
   // configuración para produccion
   await esbuild.build({
     logLevel: 'info',
-    entryPoints: ['src/**/*.*'],
+    entryPoints: ['src/**/*.mts'],
     sourceRoot: 'src',
     outdir: './dist',
     bundle: false,
@@ -56,6 +57,14 @@ if (checkParam('--developing')) {
     plugins: [
       replace({
         '.mts': '.mjs'
+      }),
+      copy({
+        assets: [
+          {
+            from: ['./src/**/{*.txt,*.img}'],
+            to: ['.'],
+          },
+        ],
       })
     ]
   }).catch(() => process.exit(1))
@@ -77,6 +86,16 @@ if (checkParam('--developing')) {
     },
     external: ['discord.js', 'dotenv', '@google', 'colors', 'path', 'url', 'fs'],
     tsconfig: './tsconfig.json',
+    plugins: [
+      copy({
+        assets: [
+          {
+            from: ['./src/**/{*.txt,*.img}'],
+            to: ['.'],
+          },
+        ],
+      })
+    ],
   }).catch(() => process.exit(1))
 }else{
   if(!checkParam('--clean')){
