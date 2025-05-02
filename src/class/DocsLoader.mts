@@ -103,7 +103,7 @@ export class DocsLoader {
             sortedBuilds.forEach((build: {[key:string]: any}, index: number) => {
                 if(index > 10){ return }
                 
-                txtFileContents += "- v." + Number(build.version)
+                txtFileContents += "- version:" + Number(build.version)
 
                 if (build.stable === true || build.beta === true) {
                     txtFileContents += " estable-beta"
@@ -120,10 +120,10 @@ export class DocsLoader {
                 txtFileContents += "\n"
 
                 if(build.maxcore !== null){
-                    txtFileContents += "  - v max core: " + Number(build.maxcore) + "\n"
+                    txtFileContents += "  - version maxima core: " + Number(build.maxcore) + "\n"
                 }
                 if(build.mincore !== null){
-                    txtFileContents += "  - v min core: " + Number(build.mincore) + "\n"
+                    txtFileContents += "  - version minima core: " + Number(build.mincore) + "\n"
                 }
                 
                 

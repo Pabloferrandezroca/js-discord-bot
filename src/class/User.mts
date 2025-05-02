@@ -53,7 +53,7 @@ async function addUserMessageDB(user: User, message: string) {
     let data = await getUserDB(user)
 
     data.mensages_replied += 1
-    data.char_length = message.length
+    data.char_length += message.length
     await DatabaseManager.setChatbotStats(data)
 }
 
@@ -103,7 +103,7 @@ class User {
 
     public async sendMessage(message: string): Promise<string>
     {
-        let response = await enviarMensaje(this.AIChat.chat, message)
+        let response = await enviarMensaje(this.AIChat.chat, message) ?? "[[el chatbot no ha devuelto respuesta]]"
         await addUserMessageDB(this, response)
         return response
     }
