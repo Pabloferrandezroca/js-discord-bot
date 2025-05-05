@@ -107,8 +107,8 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
         return
       }
       const userResponse = collected.first();
+      await userResponse.react('⌛')
       
-
       // en caso de estar actualizando el cache avisa al usuario.
       if (Bot.isUpdatingCache()) {
         let response = await userResponse.reply(`<@${userResponse.author.id}> actualmente estoy actualizando mi conocimiento sobre la documentación de facturascripts, puedo tardar hasta 5-10 minutos. Te responderé en cuanto termine ||(borraré este mensaje cuando acabe)||.`)
@@ -120,10 +120,12 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
       }
       
       await (userResponse.channel as TextChannel).sendTyping()
-
+      
       let usermsg = await replaceMentionsWithUsernames(userResponse.content, userResponse.guild)
       let generatedMessage = await user.sendMessage(`[Nombre de usuario: <@${userResponse.author.username}>]:` + usermsg)
       generatedMessage = await replaceUsernamesWithMentions(generatedMessage, userResponse.guild)
+      await userResponse.reactions.resolve('⌛').users.remove(Bot.client.user.id)
+      // await userResponse.react('✅')
 
       if (generatedMessage.includes('$$END_CHAT$$')) {
         let msg = generatedMessage.replace('$$END_CHAT$$', '').trimEnd()
@@ -136,7 +138,7 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
           }
           user.AIChat.lastIAMessage = last
         }
-        await user.AIChat.lastIAMessage.reply('- **Se ha cerrado la conversación (dada por finalizada)**')
+        user.AIChat.lastIAMessage = await user.AIChat.lastIAMessage.reply('- **Se ha cerrado la conversación (dada por finalizada)**')
         DatabaseManager.addMessage(user.AIChat.lastIAMessage.id)
         user.endChat()
         return

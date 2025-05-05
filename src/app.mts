@@ -35,6 +35,8 @@ Bot.client.on(Events.MessageCreate, async message => {
 
     if(message.channel.id === Configuration.helpIAChannel.id){
 
+      await message.react('⌛')
+
       // en caso de estar actualizando el cache avisa al usuario.
       if(Bot.isUpdatingCache()){
         let response = await message.reply(`<@${message.author.id}> actualmente estoy actualizando mi conocimiento sobre la documentación de facturascripts, puedo tardar hasta 5-10 minutos. Te responderé en cuanto termine ||(borraré este mensaje cuando acabe)||.`)
@@ -53,6 +55,7 @@ Bot.client.on(Events.MessageCreate, async message => {
         Tu respuesta no debe superar los 2000 caracteres. Si es posible, responde en una sola frase o directamente con el dato solicitado solo si no requiere de explicación.
         `
       )
+      await message.reactions.resolve('⌛').users.remove(Bot.client.user.id)
       let sepparatedMessages = splitFromJumpLines(aiResp, 2000)
       let last = message
       for (const mensaje of sepparatedMessages) {
