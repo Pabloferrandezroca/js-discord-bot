@@ -112,9 +112,7 @@ export class DocsLoader {
                 }
                 
             })
-        }
-        );
-        console.log(txtFileContents);
+        });
         return txtFileContents;
     }
 }
