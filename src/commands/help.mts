@@ -87,7 +87,7 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
   await interaction.deleteReply()
   let AIMessage = await thread.send(`Hola <@${user.getID()}>, ¿en que puedo ayudarte hoy?`)
   user.AIChat.lastIAMessage = AIMessage
-  DatabaseManager.addMessage(user.AIChat.lastIAMessage.id)
+  // DatabaseManager.addMessage(user.AIChat.lastIAMessage.id)
   while (user.isInChat()) {
     try {
       const collected = await thread.awaitMessages({
@@ -112,11 +112,11 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
       // en caso de estar actualizando el cache avisa al usuario.
       if (Bot.isUpdatingCache()) {
         let response = await userResponse.reply(`<@${userResponse.author.id}> actualmente estoy actualizando mi conocimiento sobre la documentación de facturascripts, puedo tardar hasta 5-10 minutos. Te responderé en cuanto termine ||(borraré este mensaje cuando acabe)||.`)
-        DatabaseManager.addMessage(response.id)
+        // DatabaseManager.addMessage(response.id)
         await Bot.awaitCacheLoading()
         let id = response.id
         await response.delete()
-        DatabaseManager.deleteMessage(id)
+        // DatabaseManager.deleteMessage(id)
       }
       
       await (userResponse.channel as TextChannel).sendTyping()
@@ -134,12 +134,12 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
           let last = userResponse
           for (const mensaje of sepparatedMessages) {
             last = await last.reply({ content: mensaje })
-            DatabaseManager.addMessage(last.id)
+            // DatabaseManager.addMessage(last.id)
           }
           user.AIChat.lastIAMessage = last
         }
         user.AIChat.lastIAMessage = await user.AIChat.lastIAMessage.reply('- **Se ha cerrado la conversación (dada por finalizada)**')
-        DatabaseManager.addMessage(user.AIChat.lastIAMessage.id)
+        // DatabaseManager.addMessage(user.AIChat.lastIAMessage.id)
         user.endChat()
         return
       } else {
@@ -147,7 +147,7 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
         let last = userResponse
         for (const mensaje of sepparatedMessages) {
           last = await last.reply({ content: mensaje })
-          DatabaseManager.addMessage(last.id)
+          // DatabaseManager.addMessage(last.id)
         }
         user.AIChat.lastIAMessage = last
       }
@@ -161,7 +161,7 @@ const startChatbotAction = async (interaction: ChatInputCommandInteraction) => {
       }
       
       let mess = await AIMessage.reply('- **Se ha cerrado la conversación (error interno del bot)**')
-      DatabaseManager.addMessage(mess.id)
+      // DatabaseManager.addMessage(mess.id)
       console.error(err)
       user.endChat()
       return

@@ -8,6 +8,16 @@ export interface ChatbotStats {
     char_length: number;
 }
 
+export interface messageRow {
+    id_message: string;
+    fecha: string;
+}
+
+export interface threadRow {
+    id_thread: string;
+    fecha: string;
+}
+
 export class DatabaseManager {
 
     protected static db: Database
@@ -97,7 +107,8 @@ export class DatabaseManager {
     static deleteMessage(id_message: string) {
         this.db.run(`DELETE FROM messages WHERE id_message = ?`, [id_message], function(err) {
             if (err) {
-                console.error('Error al eliminar de "messages":', err.message);
+                // console.error('Error al eliminar de "messages":', err.message);
+                throw err;
             }
         });
     }
@@ -105,7 +116,8 @@ export class DatabaseManager {
     static deleteThread(id_thread: string) {
         this.db.run(`DELETE FROM threads WHERE id_thread = ?`, [id_thread], function(err) {
             if (err) {
-                console.error('Error al eliminar de "threads":', err.message);
+                // console.error('Error al eliminar de "threads":', err.message);
+                throw err;
             }
         });
     }
@@ -113,28 +125,44 @@ export class DatabaseManager {
     static deleteInteraction(id_interaction: string) {
         this.db.run(`DELETE FROM interactions WHERE id_interaction = ?`, [id_interaction], function(err) {
             if (err) {
-                console.error('Error al eliminar de "interactions":', err.message);
+                // console.error('Error al eliminar de "interactions":', err.message);
+                throw err;
             }
         });
     }
 
-    static listMessages() {
-        this.db.all(`SELECT * FROM messages`, [], (err, rows) => {
-            if (err) {
-                console.error('Error al consultar "messages":', err.message);
-            } else {
-                console.log('messages:', rows);
-            }
+    static listMessages(count: number): Promise<messageRow[]> {
+        return new Promise((resolve, reject) => {
+            this.db.all(
+                `SELECT * FROM messages ORDER BY fecha DESC LIMIT ?`,
+                [count],
+                (err, rows) => {
+                    if (err) {
+                        // console.error('Error al consultar "messages":', err.message);
+                        reject(err);
+                    } else {
+                        resolve(rows as messageRow[]);
+                    }
+                }
+            );
         });
     }
+    
 
-    static listThreads() {
-        this.db.all(`SELECT * FROM threads`, [], (err, rows) => {
-            if (err) {
-                console.error('Error al consultar "threads":', err.message);
-            } else {
-                console.log('threads:', rows);
-            }
+    static listThreads(count: number): Promise<threadRow[]> {
+        return new Promise((resolve, reject) => {
+            this.db.all(
+                `SELECT * FROM threads ORDER BY fecha DESC LIMIT ?`,
+                [count],
+                (err, rows) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log('threads:', rows);
+                        resolve(rows as threadRow[]);
+                    }
+                }
+            );
         });
     }
     
@@ -206,5 +234,5 @@ export class DatabaseManager {
                 }
             });
         });
-    }  
+    }
 }
