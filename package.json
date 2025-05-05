@@ -19,7 +19,6 @@
     "esbuild:clean": "node esbuild.config.mjs --clean",
     "jasmine:test": "node jasmine.config.mjs",
     "node:app": "node dist/app.mjs",
-    
     "check": "npm run tsc:check",
     "build": "npm run check && npm run esbuild:prod",
     "build-dev": "npm run check && npm run esbuild:dev",
@@ -38,6 +37,7 @@
     "discord.js": "^14.0.0",
     "dotenv": "^16.4.7",
     "esbuild": "^0.25.2",
+    "esbuild-plugin-copy": "^2.1.1",
     "jasmine": "^5.6.0",
     "sqlite3": "^5.1.7",
     "tsc": "^2.0.4",

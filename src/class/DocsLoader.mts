@@ -63,7 +63,7 @@ export class DocsLoader {
 
         let resp = await response.text();
         let data = JSON.parse(resp) as {[key:string]: any}[];
-        let txtFileContents = 'Lista de plugins de facturascripts.\n'+
+        let txtFileContents = 'Lista de plugins de facturascripts.\n'
         data.forEach((element, index) => {
             txtFileContents += `# ${element.name}\n`+
             `- Descripcion: ${element.description}\n`+
@@ -95,24 +95,43 @@ export class DocsLoader {
         let data = JSON.parse(resp) as {[key:string]: any}[];
         let txtFileContents = 'Lista de builds de facturascripts.\n'+
         `Este fichero ha sido actualizado ${new Date}. Se actualiza todos los días, orientate en cuanto al tiempo a esa\n\n\n`;
-        data.forEach((element, index) => {
-            "Nombre: " + element.name + "\n"+
-            element.builds.forEach((build: {[key:string]: any}) => {
-                "Version:" + build.version + "\n"+
-                "Version maxima: " + build.maxcore + "\n"+
-                "Version minima: " + build.mincore + "\n"
+
+        data.forEach((element) => {
+            txtFileContents += `## ${element.name}\n`+
+            (element.builds.length > 0 ? " Versiones:\n\n" : "No existen builds")
+            const sortedBuilds = [...element.builds].sort((a, b) => Number(b.version) - Number(a.version));
+            sortedBuilds.forEach((build: {[key:string]: any}, index: number) => {
+                if(index > 10){ return }
+                
+                txtFileContents += "- version:" + Number(build.version)
+
                 if (build.stable === true || build.beta === true) {
-                    txtFileContents += "Estado: Estable-beta\n"
+                    txtFileContents += " estable-beta"
                 }
                 else if (build.stable === true || build.beta === false) {
-                    txtFileContents += "Estado: Estable\n"
+                    txtFileContents += " estable"
                 }
                 else if (build.stable === false || build.beta === true) {
-                    txtFileContents += "Estado: Beta\n"
+                    txtFileContents += " beta-inestable"
+                } else {
+                    txtFileContents += " inestable"
+                }
+
+                txtFileContents += "\n"
+
+                if(build.maxcore !== null){
+                    txtFileContents += "  - version maxima core: " + Number(build.maxcore) + "\n"
+                }
+                if(build.mincore !== null){
+                    txtFileContents += "  - version minima core: " + Number(build.mincore) + "\n"
                 }
                 
+                
+                txtFileContents += "\n"
             })
-        });
-        return txtFileContents;
+            txtFileContents += "\n\n"
+        })
+        
+        return {buildsInformation: txtFileContents}
     }
 }

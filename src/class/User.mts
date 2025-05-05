@@ -103,7 +103,7 @@ class User {
 
     public async sendMessage(message: string): Promise<string>
     {
-        let response = await enviarMensaje(this.AIChat.chat, message)
+        let response = await enviarMensaje(this.AIChat.chat, message) ?? "[[el chatbot no ha devuelto respuesta]]"
         await addUserMessageDB(this, response)
         return response
     }

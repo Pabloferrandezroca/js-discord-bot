@@ -11,7 +11,6 @@ import { awaitCacheLoading, checkCache, isUpdatingCache } from '../lib/gemini.mt
 import { APP_DATA_PATH, CONFIG_PATH, DATABASE_PATH } from '../paths.mts'
 import { DatabaseManager } from './DatabaseManager.mts'
 import { existsSync } from 'fs'
-import { DocsLoader } from './DocsLoader.mts'
 
 console.clear()
 console.log(`\n[--------------------------- logs -----------------------------]\n`)
@@ -61,7 +60,6 @@ Configuration.getProperties().forEach(prop => {
   }
 })
 
-DocsLoader.getBuildList();
 
 Log.info('Cargando datos de la aplicación')
 if(!fileExists(APP_DATA_PATH)){

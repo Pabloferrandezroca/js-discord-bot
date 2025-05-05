@@ -24,8 +24,7 @@ export class DatabaseManager {
         
         this.db.serialize(() => {
             this.db.run(`CREATE TABLE IF NOT EXISTS messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_message BIGINT,
+                id_message VARCHAR(25) PRIMARY KEY,
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )`, (err) => {
                 if (err) {
@@ -36,8 +35,7 @@ export class DatabaseManager {
             });
 
             this.db.run(`CREATE TABLE IF NOT EXISTS threads (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_thread BIGINT,
+                id_thread VARCHAR(25) PRIMARY KEY,
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )`, (err) => {
                 if (err) {
@@ -48,8 +46,7 @@ export class DatabaseManager {
             })
 
             this.db.run(`CREATE TABLE IF NOT EXISTS interactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_interaction BIGINT,
+                id_interaction VARCHAR(25) PRIMARY KEY,
                 fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )`, (err) => {
                 if (err) {
