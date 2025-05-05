@@ -159,7 +159,6 @@ export async function crearChat(username: string, botUsername: string): Promise<
       },
     ],
     config: {
-      contents: createUserContent(createPartFromUri(doc.uri, doc.mimeType)),
       systemInstruction: readFileSync(SYSTEM_PROMPT_FILE_PATH, 'utf8'),
       maxOutputTokens: 1_000_000,
       //stopSequences: ['$$END_CHAT$$']
