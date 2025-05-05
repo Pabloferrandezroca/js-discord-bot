@@ -4,7 +4,7 @@ import sqlite3, { Database } from 'sqlite3';
 export interface ChatbotStats {
     discord_user_id: string;
     chats_opened: number;
-    mensages_replied: number;
+    messages_replied: number;
     char_length: number;
 }
 
@@ -67,9 +67,9 @@ export class DatabaseManager {
             })
             this.db.run(`CREATE TABLE IF NOT EXISTS chatbotStats(
                 discord_user_id VARCHAR(25) PRIMARY KEY,
-                chats_opened INTEGER,
-                mesages_replied INTEGER,
-                char_length INTEGER
+                chats_opened INTEGER DEFAULT 0,
+                messages_replied INTEGER DEFAULT 0,
+                char_length INTEGER DEFAULT 0
                 )`, (err) => {
                 if (err) {
                     console.error('Error al crear la tabla:', err.message);
@@ -189,7 +189,7 @@ export class DatabaseManager {
                         const typedRow: ChatbotStats = {
                             discord_user_id: String(row.discord_user_id),
                             chats_opened: Number(row.chats_opened),
-                            mensages_replied: Number(row.mensages_replied),
+                            messages_replied: Number(row.messages_replied),
                             char_length: Number(row.char_length)
                         };
                         resolve(typedRow);
@@ -202,13 +202,13 @@ export class DatabaseManager {
     static async setChatbotStats(stats: ChatbotStats) 
     {
         this.db.run(
-            `INSERT INTO chatbotStats (discord_user_id, chats_opened, mesages_replied, char_length)
+            `INSERT INTO chatbotStats (discord_user_id, chats_opened, messages_replied, char_length)
              VALUES (?, ?, ?, ?)
              ON CONFLICT(discord_user_id) DO UPDATE SET
                 chats_opened = excluded.chats_opened,
-                mesages_replied = excluded.mesages_replied,
+                messages_replied = excluded.messages_replied,
                 char_length = excluded.char_length`,
-            [stats.discord_user_id, stats.chats_opened ?? 0, stats.mensages_replied ?? 0, stats.char_length ?? 0],
+            [stats.discord_user_id, stats.chats_opened, stats.messages_replied, stats.char_length],
             (err) => {
                 if (err) {
                     console.error('Error al insertar/actualizar "chatbotStats":', err.message);
@@ -227,7 +227,7 @@ export class DatabaseManager {
                     const typedRows: ChatbotStats[] = rows.map((row: any) => ({
                         discord_user_id: String(row.discord_user_id),
                         chats_opened: Number(row.chats_opened),
-                        mensages_replied: Number(row.mensages_replied),
+                        messages_replied: Number(row.messages_replied),
                         char_length: Number(row.char_length)
                     }));
                     resolve(typedRows);

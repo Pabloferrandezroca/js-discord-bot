@@ -1,16 +1,15 @@
-import { ChannelType, Client, Guild, REST, Routes, TextBasedChannel, TextChannel, ThreadChannel, type RepliableInteraction } from "discord.js";
+import { ChannelType, Client, EmbedBuilder, Guild, REST, Routes, TextBasedChannel, TextChannel, ThreadChannel, type RepliableInteraction } from "discord.js";
 import { Log } from "../class/Log.mts";
 import { type CommandCoupleType } from "../commands/commands.mts";
 
 
-export async function replyAndDelete(timeout: number, instance: RepliableInteraction, content: {}){
+export async function replyAndDelete(timeout: number, instance: RepliableInteraction, content: {}) {
     instance.editReply(content)
     await wait(timeout)
     instance.deleteReply()
 }
 
-export function wait(seconds) : Promise<void>
-{
+export function wait(seconds): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
 }
 
@@ -29,13 +28,12 @@ export async function fetchTextChannel(client: Client, channelID: string): Promi
     }
 }
 
-export async function notifySlashCommands(rest: REST, slashCommands: CommandCoupleType): Promise<[any]>
-{
+export async function notifySlashCommands(rest: REST, slashCommands: CommandCoupleType): Promise<[any]> {
     let commands = []
     for (let propiedad in slashCommands) {
         commands.push(slashCommands[propiedad]["command"])
     }
-    
+
     // Log.info(`Informando sobre la existencia de ${slashCommands.length} comandos de aplicación.`)
 
     const data = await rest.put(
@@ -47,9 +45,8 @@ export async function notifySlashCommands(rest: REST, slashCommands: CommandCoup
     return data
 }
 
-export async function notifyDeleteSlashCommands(rest: REST): Promise<void>
-{
-    
+export async function notifyDeleteSlashCommands(rest: REST): Promise<void> {
+
     // Log.info(`Eliminando interacciones en discord`)
 
     return await rest.put(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] }) as any
@@ -57,13 +54,12 @@ export async function notifyDeleteSlashCommands(rest: REST): Promise<void>
     // Log.success(`Interacciones antiguas eliminadas correctamente`, 1)
 }
 
-export async function getDiscordSlashCommands(rest: REST, slashCommands: CommandCoupleType): Promise<[any]>
-{
+export async function getDiscordSlashCommands(rest: REST, slashCommands: CommandCoupleType): Promise<[any]> {
     let commands = []
     for (let propiedad in slashCommands) {
         commands.push(slashCommands[propiedad]["command"])
     }
-    
+
     Log.info(`Obteniendo interacciones remotas en discord`)
 
     let comandos = (await rest.get(Routes.applicationCommands(process.env.DISCORD_APP_ID), { body: [] })) as [any]
@@ -73,8 +69,7 @@ export async function getDiscordSlashCommands(rest: REST, slashCommands: Command
     return comandos
 }
 
-export function generateSecurityCode(length: number): string
-{
+export function generateSecurityCode(length: number): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
@@ -83,8 +78,7 @@ export function generateSecurityCode(length: number): string
     return result;
 }
 
-export async function replaceMentionsWithUsernames(input: string,guild: Guild): Promise<string> 
-{
+export async function replaceMentionsWithUsernames(input: string, guild: Guild): Promise<string> {
     const mentionRegex = /<@!?(\d+)>/g///<@!?(\d+)>/g => incluye roles
     const matches = [...input.matchAll(mentionRegex)]
 
@@ -103,14 +97,13 @@ export async function replaceMentionsWithUsernames(input: string,guild: Guild): 
     return input.replace(mentionRegex, (_, id) => userMap[id] || `<@${id}>`)
 }
 
-export async function replaceUsernamesWithMentions(input: string,guild: Guild): Promise<string>
-{
+export async function replaceUsernamesWithMentions(input: string, guild: Guild): Promise<string> {
     const usernameRegex = /@([a-zA-Z0-9_\.]+)/g
     const matches = [...input.matchAll(usernameRegex)]
-  
+
     const uniqueUsernames = [...new Set(matches.map(match => match[1]))]
     const userMap: Record<string, string> = {}
-  
+
     const members = await guild.members.fetch()
     for (const username of uniqueUsernames) {
         // Log.warn(username)
@@ -125,53 +118,73 @@ export async function replaceUsernamesWithMentions(input: string,guild: Guild): 
             userMap[username] = `@${username}`
         }
     }
-  
-    return input.replace(usernameRegex, (_, username) => userMap[username] || `@${username}`)
-  }
 
-  export function splitFromJumpLines(text: string, maxLength: number): string[] {
+    return input.replace(usernameRegex, (_, username) => userMap[username] || `@${username}`)
+}
+
+export function splitFromJumpLines(text: string, maxLength: number): string[] {
     if (text.length <= maxLength) return [text]
-  
+
     const secciones: string[] = []
-  
+
     let restante = text
-  
+
     while (restante.length > maxLength) {
-      // Tomamos los primeros 2000 caracteres
-      const fragmento = restante.slice(0, maxLength)
-      const ultimoSalto = fragmento.lastIndexOf('\n')
-  
-      // Si hay un salto de línea dentro del fragmento
-      const puntoCorte = ultimoSalto !== -1 ? ultimoSalto + 1 : maxLength
-  
-      let fraseSaltoLinea = restante.slice(0, puntoCorte)
-      if (fraseSaltoLinea.endsWith('\n')) {
-        fraseSaltoLinea = fraseSaltoLinea.slice(0, -1);
-      }
-      if (fraseSaltoLinea.startsWith('\n')) {
-        fraseSaltoLinea = fraseSaltoLinea.slice(1);
-      }
-      secciones.push(fraseSaltoLinea)
-      restante = restante.slice(puntoCorte)
+        // Tomamos los primeros 2000 caracteres
+        const fragmento = restante.slice(0, maxLength)
+        const ultimoSalto = fragmento.lastIndexOf('\n')
+
+        // Si hay un salto de línea dentro del fragmento
+        const puntoCorte = ultimoSalto !== -1 ? ultimoSalto + 1 : maxLength
+
+        let fraseSaltoLinea = restante.slice(0, puntoCorte)
+        if (fraseSaltoLinea.endsWith('\n')) {
+            fraseSaltoLinea = fraseSaltoLinea.slice(0, -1);
+        }
+        if (fraseSaltoLinea.startsWith('\n')) {
+            fraseSaltoLinea = fraseSaltoLinea.slice(1);
+        }
+        secciones.push(fraseSaltoLinea)
+        restante = restante.slice(puntoCorte)
     }
-  
+
     // Agregamos lo que queda (menos de 2000 caracteres)
     if (restante.length > 0) {
-      secciones.push(restante)
+        secciones.push(restante)
     }
-  
+
     return secciones
-  }
+}
 
 // Suponiendo que tienes `channel` y `messageId`
 export async function threadStillExists(guild: Guild, channelId: string): Promise<boolean> {
     try {
-      const channel = await guild.channels.fetch(channelId, {cache: false}) as ThreadChannel
-      return !channel.archived
+        const channel = await guild.channels.fetch(channelId, { cache: false }) as ThreadChannel
+        return !channel.archived
     } catch (error) {
-      if (error.code === 10003) { // Código "Unknown Channel"
-        return false;
-      }
-      throw error;
+        if (error.code === 10003) { // Código "Unknown Channel"
+            return false;
+        }
+        throw error;
     }
-  }
+}
+
+export async function getMembers(channel) {
+    let channelUsers = [];
+    let channelBots = [];
+    const members = await channel.guild.members.fetch();
+    members.forEach(member => {
+        if (member.user.bot === false) {
+            channelUsers.push(member.user.username);
+        }
+        else {
+            channelBots.push(member.user.username);
+        }
+    });
+    return {
+        channelUsers,
+        channelBots,
+        channelMembers: channelUsers.length + channelBots.length
+    }
+    
+};
