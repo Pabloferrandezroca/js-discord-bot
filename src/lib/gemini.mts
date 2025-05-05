@@ -49,7 +49,6 @@ async function fsPluginInfoList() {
 }
 
 async function fsBuildInfoList() {
-  Log.warn('ha usao la función el espabilao')
   return await DocsLoader.getBuildList()
 }  
 
@@ -170,27 +169,32 @@ export async function generarMensajeHuerfano(message: string, systemPrompt: stri
 
 async function executeFunctionCall(response: GenerateContentResponse, contents: ContentListUnion): Promise<GenerateContentResponse>
 {
-  console.log(response.functionCalls)
   if(response.functionCalls){
+    let num = response.functionCalls.length
+    Log.info(`Gemini ha llamado a ${num} ${num === 1 ? 'función' : 'funciones'}`)
 
-    let function_response_part = {
-      name: response.functionCalls[0].name,
-      response: {}
+    for(let call of response.functionCalls){
+      let function_response_part = {
+        name: call.name,
+        response: {}
+      }
+  
+      switch (call.name) {
+        case fsPluginInfoListFunctionDeclaration.name:
+          function_response_part.response = await fsPluginInfoList()
+          break;
+        case fsBuildInfoListFunctionDeclaration.name:
+          function_response_part.response = await fsBuildInfoList()
+          break;
+        default:
+          throw new Error(`No existe la función (${call.name}) pedida por la API de gemini`)
+      }
+      
+      (contents as ContentListUnion[]).push({ role: 'model', parts: [{ functionCall: response.functionCalls[0] }] });
+      (contents as ContentListUnion[]).push({ role: 'user', parts: [{ functionResponse: function_response_part }] });
     }
 
-    switch (response.functionCalls[0].name) {
-      case fsPluginInfoListFunctionDeclaration.name:
-        function_response_part.response = await fsPluginInfoList()
-        break;
-      case fsBuildInfoListFunctionDeclaration.name:
-        function_response_part.response = await fsBuildInfoList()
-        break;
-      default:
-        throw new Error(`No existe la función (${response.functionCalls[0].name}) pedida por la API de gemini`)
-    }
-    
-    (contents as ContentListUnion[]).push({ role: 'model', parts: [{ functionCall: response.functionCalls[0] }] });
-    (contents as ContentListUnion[]).push({ role: 'user', parts: [{ functionResponse: function_response_part }] });
+    console.log(contents)
 
     response = await genAI.models.generateContent({
       model: MODEL_NAME,
